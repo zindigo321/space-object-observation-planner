@@ -1,5 +1,7 @@
 # 当前阶段状态
 
+截至 R35 预审，H180 跨轮原生验收仍为 2/4，H180_IMP 的 baseline 和 improved 两组尚未完成。R35-A、R35-B 为 BLOCKED；R35-C 尚未启动，正在确认运行端允许范围。R28 仍为 PARTIAL，正式证据交付与接收尚未闭合。
+
 更新日期：2026-11-02。最新为R34_H180_BASE_IMPROVED_PASS，仅覆盖H180_BASE/improved、t3600单组。与已通过的R33-C baseline同起点配对，selected J为(2758,180)对(2806,180)，增加48整数分，即当前任务分口径9.6分，覆盖均180。improved达到本固定历史与离散候选池下2806条件主分松上界；不作一般最优、故障专属收益或官方评分推断。详见[H180同起点配对](R33_R34_H180_BASE_PAIR.md)。
 
 R20共同输入交付INPUT_DELIVERY_PASS保留；R21原轮仍PARTIAL、native0/4，跨轮新增验收目前native2/4，IMP起点两组未完成。R22/R23仍PARTIAL，R24–R26-A/B仍BLOCKED。R27资格通过，R28技术seal/post/accept成功但整轮PARTIAL；R29/R30、R32、R33-A/B仍BLOCKED，R31仅启动计时资格通过。后续成功不追改旧失败，R33-C/R34未执行seal/post/accept。
