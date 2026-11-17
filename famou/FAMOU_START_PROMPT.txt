@@ -1,0 +1,21 @@
+请使用本次上传的 bd-fmb H180 完整文件创建观测任务重规划测试。按 UPLOAD_MANIFEST.json 恢复原相对目录；先不要优化。上传文件分批到齐后运行：
+
+python restore_upload.py --uploads . --out restored_project
+cd restored_project
+python -m pip install -r famou/requirements-lock.txt
+python scripts/famou_run.py --case synthetic --method baseline --out ../runs/smoke_baseline
+python scripts/famou_run.py --case H180_BASE --method baseline --out ../runs/H180_BASE_baseline
+python scripts/famou_run.py --case H180_IMP --method baseline --out ../runs/H180_IMP_baseline
+
+读取 famou/problem.md 和 famou/PLATFORM_GUIDE.md。固定输入、候选池、评分器、外部源哈希、决策时刻及全部硬约束。先报告真实安装、运行、独立评价、recheck 的退出码和计时；不要把历史报告当本次运行结果。
+
+基线复现成功后，复制 famou/initial_candidate.py 为 candidate.py，只优化该候选算法。固定评价器、planner、data、configs、FIXED_MANIFEST.json 均为不可优化的只读资产；如果平台不能保持评价资产隔离，只生成 proposal.csv，交可信评价侧单独运行固定评价器。
+
+python scripts/famou_candidate_runner.py --case H180_BASE --script candidate.py --out ../runs/candidate_base_001 --timeout 180
+python scripts/famou_candidate_runner.py --case H180_IMP --script candidate.py --out ../runs/candidate_imp_001 --timeout 180
+
+两个共同起点分别比较。目标按 J=(整数主分,覆盖目标数)字典序排序；主分从权威优先级和任务时长重算，合法严格提升才替换原方案，平分或变差保留原方案，非法输出必须失败。禁止换样本、扩候选池、改评分、放松约束或延长冻结算法的30秒求解预算。候选入口的180秒是含准备、写出等的独立可运行性测试上限，不是正式业务600秒预算的替代或延长。
+
+请交付实际 proposal.csv、selected.csv、candidate_evaluation.json、candidate_execution.json、evaluator_execution.json、日志和运行环境，列出 retained/raw/selected J、选择分支、调整量、历史及合法性检查。明确每个测试是否真实执行、是否超时。错误时保留失败目录并用全新目录重试。输出百度任务ID、实际回执和平台限制；没有运行成功不得报告平台PASS。
+
+本包为待用户在百度伐谋测试材料；本地结果、历史正式实验及本次百度结果必须分开。
