@@ -16,7 +16,11 @@ ZIP 是本地交付载体，请先在本机解压；只上传 upload/ 中 UPLOAD
 
 `python -m pip install --no-index --find-links wheelhouse -r famou/requirements-lock.txt`
 
+运行完整回归时使用 `python -m pip install --no-index --find-links wheelhouse -r famou/requirements-test-lock.txt`，然后 `python -m pytest -q`。本地 ZIP 同时携带锁定测试依赖；平台上传无需运行全部审计回归。
+
 wheelhouse 不在上传清单；Linux/macOS/其他 Python 需使用对应平台依赖，尚未实测，不宣称通过。
+
+POSIX 运行保护要求系统提供 waitid/WNOWAIT，以便清理进程组前保留父进程 PID；不具备该能力时启动即拒绝。该路径没有在本机实测，本轮验收支持范围为 Windows。
 
 包内配置均按包根相对路径解析。输出必须使用新建目录，并放在包目录之外，例如 ../runs/H180_IMP_baseline。H180 包含真实冻结源的八个文件、初始计划、候选、模型和外部期望源哈希；geometry/ 附冻结几何参考。无原机 G:/D: 路径或本机受保护密钥运行依赖。原仓库历史文档中的路径仅供历史背景，使用本指南入口。
 
@@ -33,6 +37,8 @@ wheelhouse 不在上传清单；Linux/macOS/其他 Python 需使用对应平台�
 `python scripts/famou_evaluator.py --case H180_BASE --tasks proposal.csv --proposal --out ../runs/proposal_check`
 
 生产预期输出为 workflow.json、run/retained.csv、raw_proposal.csv、selected.csv、branch_receipt.json、solver_execution.json、evaluation/evaluation.json、recheck/recheck.json 及日志。适配器退出 0=通过，2=非法/失败，3=缺资源或超时（具体原因看日志）。可运行性复测单独记账，不是新的正式科学重复。
+
+可编辑候选使用 `solve(problem)` 接口和 famou_candidate_runner.py，详见 problem.md。可信父进程划分准备40/求解30/写出20/评价80秒并共享180秒总截止。求解子进程的全部可编辑代码均受30秒硬限；子进程树清理完成后才写CSV、评价。candidate_execution.json 绑定执行副本的启动前大小/SHA256/argv及结束后核验，原稿并发变更单列。Windows Job Object 实际验证范围以包外验收报告为准；POSIX 进程组清理实现已修复，本机无可用WSL/Linux环境，不宣称POSIX或百度端实测通过。
 
 混合云区别：官方企业级 Skills 流程将问题定义与初始代码、演化提示、配置关联，并让评价器和原始数据留在本地、由本地 evaluator 上报指标。公开手册未给出可据此统一实现的 Python evaluate 函数签名，因此本包不伪造混合云 callback 或提交 API。需要混合云时须另按实际安装的企业工具契约适配；本次 problem.md 和评价 CLI 是本项目契约。
 

@@ -12,11 +12,13 @@
 
 唯一允许优化的文件是从 famou/initial_candidate.py 复制出的候选脚本。禁止修改 planner/、scripts/、data/、configs/、FIXED_MANIFEST.json 和外部期望源哈希；这些由评价侧核对。不得改候选池、模型、硬约束、评分或延长正式实验预算。修改候选算法后的成绩是新算法结果，历史四组成绩只认证原产品对象。
 
-候选 CLI：
+候选接口为 `solve(problem) -> list[dict]`。可信准备阶段提供 JSON 兼容的 `future`、`fixed`、`retained` 完整任务行、`fields`、`decision_s` 与 `source_sha256`。候选返回完整提案任务行；由可信写出阶段写 CSV，再独立评价。候选的导入、输入解码、求解与结果序列化全部计入父进程强制的 30 秒上限，任何可编辑代码不能在准备或写出阶段执行。
 
-`python candidate.py --package-root PACKAGE --source SOURCE --source-sha256 SHA256 --decision-s 3600 --out proposal.csv`
+`python scripts/famou_candidate_runner.py --case H180_IMP --script candidate.py --out ../runs/candidate_imp_001 --timeout 180`
 
-完整 CSV 字段必须沿用对应 data/*/initial_plan.csv 的实际表头。H180 使用 satnum 标识目标，合成案例使用 target_id；不得跨案例替换字段。历史状态按决策时刻更新为 completed/locked，未来为 new_success。候选必须输出完整 CSV，不能仅给摘要或评分。
+返回行必须沿用对应 data/*/initial_plan.csv 的实际字段。H180 使用 satnum 标识目标，合成案例使用 target_id（写出器映射 satnum）；不得跨案例替换字段。历史状态按决策时刻更新为 completed/locked，未来为 new_success。不能仅给摘要或评分。
+
+固定预算为准备 40 秒、求解 30 秒、写出 20 秒、评价 80 秒；各阶段还受同一总截止 180 秒约束。`--timeout` 只能收紧总预算。退出 3 表示超时/预算不足，失败候选不会进入成功评价。计时、实际 argv、执行副本启动前/结束后 SHA256、原稿是否并发变化及进程树清零证据记录在 candidate_execution.json。直接运行候选函数不构成有效受控测试。
 
 固定评价器 scripts/famou_evaluator.py 在另一个进程重开权威输入，校验原始提案、严格选择及最终计划；scripts/team3_run.py recheck 只读复查原产品运行。
 

@@ -5,12 +5,13 @@ from datetime import datetime,timezone
 from build_handoff import source_allowed,safe_name,verify_archive,archive
 ROOT=Path(__file__).resolve().parents[1]
 RUNTIME_SCRIPTS={'team3_run.py','no_fault_backend.py','make_no_fault_example.py','famou_common.py',
-                 'famou_run.py','famou_evaluator.py','famou_candidate_runner.py'}
+                 'famou_run.py','famou_evaluator.py','famou_candidate_runner.py','famou_candidate_worker.py'}
 def pretty(x):return (json.dumps(x,ensure_ascii=False,indent=2)+'\n').encode()
 def fp(raw):return dict(bytes=len(raw),sha256=hashlib.sha256(raw).hexdigest())
 def main():
     p=argparse.ArgumentParser()
     for n in ('out','inputs','input-allowlist','wheelhouse'):p.add_argument('--'+n,required=True)
+    p.add_argument('--test-wheelhouse',required=True)
     p.add_argument('--commit',default='HEAD');a=p.parse_args()
     out=Path(a.out).absolute();out.mkdir(parents=True,exist_ok=False)
     def git(*args):return subprocess.check_output(['git','-c','safe.directory='+str(ROOT),'-C',str(ROOT),*args])
@@ -37,9 +38,16 @@ def main():
         add('wheelhouse/'+wheel.name,wheel.read_bytes(),'offline Windows CPython3.11 dependency','PyPI exact pinned wheel')
         wheels.append(wheel.name)
     if len(wheels)!=6:raise ValueError('six locked runtime wheels required')
+    test_wheels=[]
+    for wheel in sorted(Path(a.test_wheelhouse).glob('*.whl')):
+        add('wheelhouse/'+wheel.name,wheel.read_bytes(),'offline CPython3.11 regression dependency','exact pinned test wheel')
+        test_wheels.append(wheel.name)
+    if len(test_wheels)!=6:raise ValueError('six locked test wheels required')
     add('FAMOU_START_PROMPT.txt',payload['famou/FAMOU_START_PROMPT.txt'][0],'paste after upload restoration','committed famou/FAMOU_START_PROMPT.txt')
     add('SOURCE_IDENTITY.json',pretty(dict(source_commit=commit,science_commit='1e35f9575ba79bd0d25fdfe96f624dce2a4ff5a5',
-       science_core_unchanged=not bool(git('diff','1e35f9575ba79bd0d25fdfe96f624dce2a4ff5a5',commit,'--','planner')),
+       science_core_unchanged=not bool(git('diff','1e35f9575ba79bd0d25fdfe96f624dce2a4ff5a5',commit,'--','planner',':(exclude)planner/process_guard.py')),
+       planner_changed_files=git('diff','--name-only','1e35f9575ba79bd0d25fdfe96f624dce2a4ff5a5',commit,'--','planner').decode().splitlines(),
+       runtime_guard_change='process_guard confirms all owned descendants terminal on success, failure and timeout',
        platform_status='待用户在百度伐谋测试',source_export='git cat-file blobs; no working tree recursion')),
        'source attribution','build metadata')
     def upload_allowed(name):
@@ -82,7 +90,7 @@ def main():
         batches += [f'## 第 {i//30+1} 批','']+['- '+n for n in ordered[i:i+30]]+['']
     add('UPLOAD_BATCHES.md','\n'.join(batches).encode(),'explicit batches','build metadata')
     add('PACKAGE_ALLOWLIST.json',pretty(dict(source_whitelist='scripts/build_handoff.py source_allowed',source_commit=commit,
-        data_files=list(allow['files']),wheel_files=wheels,upload_files=ordered,
+        data_files=list(allow['files']),wheel_files=wheels,test_wheel_files=test_wheels,upload_files=ordered,
         audit_files_uploaded=False)), 'explicit packaging allowlist','build metadata')
     receipt=archive(out/'FAMOU_TEST_PACKAGE.zip',payload,dict(source_commit=commit,
        schema='FAMOU_TEST_PACKAGE_V1',science_commit='1e35f9575ba79bd0d25fdfe96f624dce2a4ff5a5',

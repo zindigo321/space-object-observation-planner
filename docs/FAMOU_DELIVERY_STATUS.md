@@ -1,24 +1,28 @@
-# 2026-11-17 FAMOU 交付状态
+# 2026-11-17 最终 FAMOU 交付状态
 
-本地正式实验矩阵 3/4；剩余组受原生宿主资格检查阻塞，未提交或消耗新正式请求。 百度端：待用户在百度伐谋测试。
+本地正式实验矩阵 3/4；未完成的正式组和适用验收列入包外 FINAL_ACCEPTANCE.json，整体不得标为 FINAL_ACCEPTED。 百度端：待用户在百度伐谋测试。
 
-本轮源码从实际H180产品对象 `1e35f9575ba79bd0d25fdfe96f624dce2a4ff5a5` 建立隔离分支。最终对象记录在包内 SOURCE_IDENTITY.json；planner/ 科学核心未改变。新增相对路径入口、独立评价、候选限时运行、固定资产核验、平铺上传恢复和白名单打包。没有用旧main的源码冒充H180实跑对象。
+本轮从实际前次交付提交 `690eb12c66e2906d7596435e8a70823805f789f3` 建立隔离分支，科学基线为 `1e35f9575ba79bd0d25fdfe96f624dce2a4ff5a5`。最终提交写入包内 SOURCE_IDENTITY.json，原始 Git blob 白名单导出。没有用旧 main 的 09c12b9 替代。
 
-| 实验组 | 正式状态 | retained / raw / selected J |
+planner/ 中只有运行保护 process_guard.py 改变；其余调度、候选生成、计分、历史和选择规则与科学基线逐字节相同。Windows 在成功、失败、超时三种终态都终止 Job 并确认 ActiveProcesses=0。POSIX 在清理前用 waitid/WNOWAIT 保留父进程 PID，再终止受控进程组；该系统路径未实测，不把模拟当作 Linux 验收。
+
+候选改为 solve(problem) 返回任务行。可信父进程控制准备40/求解30/写出20/评价80秒，合计受180秒外层截止限制；候选导入、求解和返回序列化均在30秒受控子进程内。所有后代结束后才固定CSV、独立评价。回执在启动前绑定执行副本的大小、SHA256、argv，执行后复核副本，原稿并发变化单列。
+
+| 正式实验组 | 状态 | retained / raw / selected J |
 | --- | --- | --- |
 | H180_BASE_baseline | PASS | [2758, 180] / [2758, 180] / [2758, 180] |
 | H180_BASE_improved | PASS | [2758, 180] / [2806, 180] / [2806, 180] |
 | H180_IMP_baseline | PASS | [3000, 180] / [2814, 180] / [3000, 180] |
-| H180_IMP/improved | BLOCKED，尚未正式提交 | 无正式结果 |
+| H180_IMP_improved | 尚无通过的正式结果 | 不将包验证结果补作正式结果 |
 
-BASE配对使用完全相同起点，selected主分增加48，覆盖仍180。IMP已证实的baseline从retained3000、raw2814选择保留3000。只有正式证据完整时才补齐剩余格；ZIP可运行性复测不计为正式科学重复。
+BASE 配对 selected 主分增加48，覆盖仍180。IMP/baseline 的 raw2814 被保护为 selected3000。配对使用相同冻结起点、产品、计分和选择规则；合法平局保留原方案。包内独立可运行性复测不计为正式科学重复。
 
-历史100个产品文件中92个与原Git blob逐字节相同，8个examples/synthetic CSV仅部署时CRLF转LF；科学Python及H180源完全一致。最终源码从最终Git对象原始blob导出。旧R35宿主实际V1/后写V2来源差异保存在审计包历史说明中。
+旧100个部署产品文件中92个与科学 Git blob 完全相同，8个 examples/synthetic CSV 仅CRLF转LF；科学Python与H180输入相同。宿主性能修复仅用于准入/执行控制，实际部署身份、原生权限检查、每次新epoch、56动作/63分支、四次决策和80/600秒预算的结果在审计包 attempts/ 与 FINAL_ACCEPTANCE.json 中；保留所有失败，不重放已消费请求。
 
-完整回归290项通过。最终ZIP的实际依赖安装、合成流程、H180生产/独立评价/只读复查、上传还原、合法不同分数、非法输出、历史篡改、超时和固定资产篡改结果，见包外LOCAL_ACCEPTANCE.json及审计包validation/；验收绑定最终ZIP字节和SHA256，不从本说明推断未执行测试。
+最终ZIP另在全新中文/空格目录及干净Windows CPython3.11环境验证。验收覆盖离线依赖、上传还原、合成和H180生产→独立评价→recheck、非法自报分、历史篡改、固定资产保护及完整回归。实际测试数量、日志、退出、计时绑定该ZIP的字节/SHA256，见包外 FINAL_ACCEPTANCE.json 与审计包 validation/final/ACCEPTANCE.json；本说明不提前认证未运行检查。
 
-本地包使用Windows CPython3.11；随包离线wheel适用于该平台。百度端、Linux/macOS及其他Python未实测。公有云每次最多30文件，ZIP不在当前官方格式表；逐文件用途和恢复路径见UPLOAD_LIST.csv，步骤见famou/PLATFORM_GUIDE.md，全部上传后粘贴FAMOU_START_PROMPT.txt。
+upload/、UPLOAD_LIST.csv、UPLOAD_BATCHES.md、FAMOU_START_PROMPT.txt 供百度公有云测试。先按清单上传全部文件，再粘贴开场Prompt；ZIP为本地交付载体。平台规则以用户实际页面为准，详见 famou/PLATFORM_GUIDE.md。上传还原不依赖原机盘符、本地审计宿主或受保护密钥。
 
-包内H180为真实冻结输入，180目标、10站、24小时时域；完整六天、10000目标、官方评分、现场验收不属于本轮默认范围。原机受保护Windows宿主只作审计，不是上传算法的依赖。
+本轮实际系统范围为 Windows CPython3.11，离线wheel适用于该平台。POSIX、其他Python和百度端未实测；百度端状态固定为“待用户在百度伐谋测试”。H180为180目标、10站、24小时冻结实例；六天、10000目标、官方评分、现场验收不扩为本轮门槛。
 
-逐次失败、原始退出、资格判定、复现和最小剩余动作均在AUDIT_PACKAGE.zip。不能把程序seal/post/accept冒充本人签收；不完整矩阵不得标为四组通过。
+AUDIT_PACKAGE.zip 保存历史包、新尝试、正式证据、性能计时、修复差异和最终包验证；包内manifest排除自身，ZIP哈希放包外回执。程序accept不代表用户本人签收。整体状态只能以真实门槛计算得到，缺项时仍交付审计ZIP并标明PARTIAL。
