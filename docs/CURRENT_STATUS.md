@@ -1,6 +1,6 @@
 # 2026-11-17 当前交付状态
 
-本地正式实验矩阵 3/4；未完成的正式组和适用验收列入包外 FINAL_ACCEPTANCE.json，整体不得标为 FINAL_ACCEPTED。 百度端：待用户在百度伐谋测试。
+本地正式实验矩阵 4/4；四组 seal、全新路径 post/读回及程序 accept 已通过。 百度端：待用户在百度伐谋测试。
 
 详见[FAMOU交付记录](FAMOU_DELIVERY_STATUS.md)。以下为历史状态原文，保留作证据背景。
 
