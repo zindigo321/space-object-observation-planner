@@ -79,8 +79,10 @@ def test_original_change_keeps_executed_copy_binding(package,tmp_path,record_pro
 @pytest.mark.parametrize('mode',['success','failure','timeout'])
 def test_descendants_terminated_after_all_parent_outcomes(tmp_path,mode,record_property):
     heartbeat=tmp_path/'heartbeat';parent=tmp_path/'parent.py'
+    worker_identity=tmp_path/'worker_identity.json'
     child='import sys,time;from pathlib import Path;p=Path(sys.argv[1])\nwhile True:p.write_text(str(time.monotonic()));time.sleep(.02)\n'
-    parent.write_text('import subprocess,sys,time\nfrom pathlib import Path\n'
+    parent.write_text('import subprocess,sys,time,os,json\nfrom pathlib import Path\n'
+        f'Path({str(worker_identity)!r}).write_text(json.dumps(dict(ppid=os.getppid(),prefix=sys.prefix,executable=sys.executable)))\n'
         f'p=Path({str(heartbeat)!r})\n'
         f'subprocess.Popen([sys.executable,"-B","-c",{child!r},str(p)])\n'
         'while not p.exists():time.sleep(.01)\n'+
@@ -90,6 +92,8 @@ def test_descendants_terminated_after_all_parent_outcomes(tmp_path,mode,record_p
     assert result['timed_out']==(mode=='timeout')
     assert result['exit_code']=={'success':0,'failure':7,'timeout':3}[mode]
     assert result['cleanup']['confirmed'] and result['cleanup']['active_processes']==0
+    actual=json.loads(worker_identity.read_bytes())
+    assert actual==dict(ppid=os.getpid(),prefix=sys.prefix,executable=sys.executable)
     before=heartbeat.read_bytes();time.sleep(.2);assert heartbeat.read_bytes()==before
     record_property('execution',json.dumps(result))
 

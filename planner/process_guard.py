@@ -3,6 +3,7 @@ import ctypes
 import os
 import signal
 import subprocess
+import sys
 import time
 from pathlib import Path
 
@@ -105,15 +106,25 @@ def run_guarded(command, *, timeout, log_path, cwd=None, deadline_monotonic=None
         raise RuntimeError('POSIX waitid/WNOWAIT required to retain owned process-group identity')
     started=time.perf_counter()
     deadline=min(time.monotonic()+timeout,deadline_monotonic) if deadline_monotonic is not None else time.monotonic()+timeout
-    job=WindowsJob() if os.name=='nt' else None
     process=None
     timed_out=False
     cleaned=False
+    launch_options={}
+    # CPython's Windows venv redirector spawns another interpreter. Launch the
+    # same underlying interpreter directly while retaining its venv identity,
+    # so authenticated worker-parent checks still refer to this live parent.
+    # Other interpreters/commands are never substituted.
+    if (os.name=='nt' and sys.implementation.name=='cpython' and sys.prefix!=sys.base_prefix
+        and os.path.normcase(os.path.abspath(command[0]))==os.path.normcase(os.path.abspath(sys.executable))):
+        base=getattr(sys,'_base_executable',None)
+        if not base or not Path(base).is_file():raise RuntimeError('venv base interpreter unavailable')
+        launch_options={'executable':base,'env':dict(os.environ,__PYVENV_LAUNCHER__=sys.executable)}
+    job=WindowsJob() if os.name=='nt' else None
     try:
         with open(log_path,'wb') as log:
             process=subprocess.Popen(command,cwd=cwd,stdout=log,stderr=subprocess.STDOUT,
                 creationflags=0x4 | subprocess.CREATE_NO_WINDOW if job else 0,
-                start_new_session=not bool(job))
+                start_new_session=not bool(job),**launch_options)
             if job: job.attach_and_resume(process)
             try:
                 wait_seconds=max(0,deadline-time.monotonic())
@@ -130,6 +141,8 @@ def run_guarded(command, *, timeout, log_path, cwd=None, deadline_monotonic=None
             process.wait(timeout=10)
             cleanup['seconds']=time.perf_counter()-cleanup_started
         return dict(exit_code=code,raw_exit_code=process.returncode,timed_out=timed_out,
+                    argv=list(map(str,command)),launch_executable=str(launch_options.get('executable',command[0])),
+                    venv_identity_preserved=bool(launch_options),
                     seconds=time.perf_counter()-started,execution_seconds=execution_seconds,
                     cleanup=cleanup,tree_guard='Windows_Job_Object' if job else 'POSIX_process_group')
     finally:
