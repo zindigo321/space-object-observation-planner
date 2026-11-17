@@ -9,7 +9,9 @@ def main():
     p.add_argument('--method',choices=['baseline','improved'],default='baseline')
     p.add_argument('--out',required=True)
     p.add_argument('--budget-seconds',type=float,default=180)
-    a=p.parse_args();seal=verify_fixed();source,sha,t=case_config(a.case)
+    a=p.parse_args()
+    if not 0<a.budget_seconds<=180:raise ValueError('workflow budget must be in (0,180] seconds')
+    seal=verify_fixed();source,sha,t=case_config(a.case)
     cmd=[sys.executable,'-B','-X','utf8',str(ROOT/'scripts/team3_run.py'),'--budget-seconds',str(a.budget_seconds),
          'no-fault','--source',str(source),'--source-sha256',sha,'--decision-s',str(t),'--method',a.method,'--out',a.out]
     result=subprocess.run(cmd,cwd=ROOT)

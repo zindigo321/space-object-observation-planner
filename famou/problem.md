@@ -16,7 +16,7 @@
 
 `python candidate.py --package-root PACKAGE --source SOURCE --source-sha256 SHA256 --decision-s 3600 --out proposal.csv`
 
-完整 CSV 字段沿用 data/*/initial_plan.csv：task_id,candidate_id,window_id,target_id,station_id,priority,start_s,end_s,duration_s,points_int,score,start_utc,end_utc,status（实际字段以冻结 CSV 为准）。历史状态按决策时刻更新为 completed/locked，未来为 new_success。候选必须输出 CSV，不能仅给摘要或评分。
+完整 CSV 字段必须沿用对应 data/*/initial_plan.csv 的实际表头。H180 使用 satnum 标识目标，合成案例使用 target_id；不得跨案例替换字段。历史状态按决策时刻更新为 completed/locked，未来为 new_success。候选必须输出完整 CSV，不能仅给摘要或评分。
 
 固定评价器 scripts/famou_evaluator.py 在另一个进程重开权威输入，校验原始提案、严格选择及最终计划；scripts/team3_run.py recheck 只读复查原产品运行。
 

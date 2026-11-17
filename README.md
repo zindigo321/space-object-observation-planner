@@ -1,5 +1,23 @@
 # bd-fmb-observation-planner
 
+## 2026-11-17 百度伐谋测试交付
+
+本地正式实验矩阵 3/4；剩余组受原生宿主资格检查阻塞，未提交或消耗新正式请求。 百度端：待用户在百度伐谋测试。
+
+本轮完整测试ZIP带真实H180与合成输入、固定评价器、锁定依赖及upload/文件。请使用以下相对路径入口；旧smoke.yaml和后文历史命令不代表本次完整交付。
+
+```powershell
+python -m pip install --no-index --find-links wheelhouse -r famou/requirements-lock.txt
+python scripts/famou_run.py --case synthetic --out ../runs/synthetic_01
+python scripts/famou_run.py --case H180_IMP --method improved --out ../runs/H180_IMP_01
+python scripts/famou_evaluator.py --case H180_IMP --tasks ../runs/H180_IMP_01/run/selected.csv --out ../runs/evaluate_01
+python scripts/team3_run.py recheck --source ../runs/H180_IMP_01/run --source-sha256 b9567a450adf332fe587e9e325af0d61654e0268e1a889868e9d396d33e1dfac --out ../runs/recheck_01
+```
+
+每次使用新的包外输出目录。百度上传方式见[平台指南](famou/PLATFORM_GUIDE.md)，问题和约束见[问题定义](famou/problem.md)，完整结果边界见[交付状态](docs/FAMOU_DELIVERY_STATUS.md)。最终验收以与ZIP哈希绑定的包外回执为准。
+
+以下保留原项目说明与历史入口。
+
 自主观测任务规划。项目提供贪心基线、改进算法、站点故障后的重规划、原生无故障重排保护、独立校验及离线 Demo 生成工具。
 
 Git 仓库包含源码、测试、合成示例和接入文档；真实比赛数据与完整运行产物保存在本地。无真实数据时也可以运行下面的合成流程。
