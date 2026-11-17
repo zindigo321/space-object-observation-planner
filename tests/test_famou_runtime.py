@@ -41,6 +41,8 @@ def test_fast_candidate_and_exact_copy(package,tmp_path,record_property):
     assert receipt['status']=='PASS' and receipt['executed_copy_unchanged']
     assert receipt['candidate']==identity(out/'candidate_workspace/candidate.py')
     assert receipt['command']==receipt['solve']['command']
+    assert receipt['command']==receipt['solve']['argv']
+    assert receipt['requested_command']==receipt['solve']['requested_argv']
     assert receipt['solve']['budget_seconds']==30
     assert all(row['cleanup']['confirmed'] for row in receipt['phases'])
     assert (out/'evaluation/candidate_evaluation.json').is_file()
@@ -82,7 +84,7 @@ def test_descendants_terminated_after_all_parent_outcomes(tmp_path,mode,record_p
     worker_identity=tmp_path/'worker_identity.json'
     child='import sys,time;from pathlib import Path;p=Path(sys.argv[1])\nwhile True:p.write_text(str(time.monotonic()));time.sleep(.02)\n'
     parent.write_text('import subprocess,sys,time,os,json\nfrom pathlib import Path\n'
-        f'Path({str(worker_identity)!r}).write_text(json.dumps(dict(ppid=os.getppid(),prefix=sys.prefix,executable=sys.executable)))\n'
+        f'Path({str(worker_identity)!r}).write_text(json.dumps(dict(ppid=os.getppid(),prefix=sys.prefix,executable=sys.executable,base_executable=sys._base_executable)))\n'
         f'p=Path({str(heartbeat)!r})\n'
         f'subprocess.Popen([sys.executable,"-B","-c",{child!r},str(p)])\n'
         'while not p.exists():time.sleep(.01)\n'+
@@ -93,7 +95,7 @@ def test_descendants_terminated_after_all_parent_outcomes(tmp_path,mode,record_p
     assert result['exit_code']=={'success':0,'failure':7,'timeout':3}[mode]
     assert result['cleanup']['confirmed'] and result['cleanup']['active_processes']==0
     actual=json.loads(worker_identity.read_bytes())
-    assert actual==dict(ppid=os.getpid(),prefix=sys.prefix,executable=sys.executable)
+    assert actual==dict(ppid=os.getpid(),prefix=sys.prefix,executable=sys.executable,base_executable=sys._base_executable)
     before=heartbeat.read_bytes();time.sleep(.2);assert heartbeat.read_bytes()==before
     record_property('execution',json.dumps(result))
 

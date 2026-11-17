@@ -100,6 +100,19 @@ def _wait_posix_leader(process, deadline):
         time.sleep(min(.01,max(0,deadline-time.monotonic())))
 
 
+def guarded_argv(command):
+    """Resolve the actual argv without launching or exposing environment data."""
+    argv=list(map(str,command))
+    if (os.name=='nt' and sys.implementation.name=='cpython' and sys.prefix!=sys.base_prefix
+        and os.path.normcase(os.path.abspath(argv[0]))==os.path.normcase(os.path.abspath(sys.executable))):
+        base=getattr(sys,'_base_executable',None)
+        if not base or not Path(base).is_file():raise RuntimeError('venv base interpreter unavailable')
+        if os.path.normcase(os.path.abspath(base))==os.path.normcase(os.path.abspath(sys.executable)):
+            raise RuntimeError('venv base interpreter must not be its redirector')
+        argv[0]=base
+    return argv
+
+
 def run_guarded(command, *, timeout, log_path, cwd=None, deadline_monotonic=None):
     if timeout<=0:raise ValueError('positive timeout required')
     if os.name!='nt' and not all(hasattr(os,n) for n in ('waitid','P_PID','WEXITED','WNOHANG','WNOWAIT','CLD_EXITED')):
@@ -114,15 +127,13 @@ def run_guarded(command, *, timeout, log_path, cwd=None, deadline_monotonic=None
     # same underlying interpreter directly while retaining its venv identity,
     # so authenticated worker-parent checks still refer to this live parent.
     # Other interpreters/commands are never substituted.
-    if (os.name=='nt' and sys.implementation.name=='cpython' and sys.prefix!=sys.base_prefix
-        and os.path.normcase(os.path.abspath(command[0]))==os.path.normcase(os.path.abspath(sys.executable))):
-        base=getattr(sys,'_base_executable',None)
-        if not base or not Path(base).is_file():raise RuntimeError('venv base interpreter unavailable')
-        launch_options={'executable':base,'env':dict(os.environ,__PYVENV_LAUNCHER__=sys.executable)}
+    actual_argv=guarded_argv(command)
+    if actual_argv[0]!=str(command[0]):
+        launch_options={'env':dict(os.environ,__PYVENV_LAUNCHER__=sys.executable)}
     job=WindowsJob() if os.name=='nt' else None
     try:
         with open(log_path,'wb') as log:
-            process=subprocess.Popen(command,cwd=cwd,stdout=log,stderr=subprocess.STDOUT,
+            process=subprocess.Popen(actual_argv,cwd=cwd,stdout=log,stderr=subprocess.STDOUT,
                 creationflags=0x4 | subprocess.CREATE_NO_WINDOW if job else 0,
                 start_new_session=not bool(job),**launch_options)
             if job: job.attach_and_resume(process)
@@ -141,7 +152,7 @@ def run_guarded(command, *, timeout, log_path, cwd=None, deadline_monotonic=None
             process.wait(timeout=10)
             cleanup['seconds']=time.perf_counter()-cleanup_started
         return dict(exit_code=code,raw_exit_code=process.returncode,timed_out=timed_out,
-                    argv=list(map(str,command)),launch_executable=str(launch_options.get('executable',command[0])),
+                    argv=actual_argv,requested_argv=list(map(str,command)),launch_executable=actual_argv[0],
                     venv_identity_preserved=bool(launch_options),
                     seconds=time.perf_counter()-started,execution_seconds=execution_seconds,
                     cleanup=cleanup,tree_guard='Windows_Job_Object' if job else 'POSIX_process_group')

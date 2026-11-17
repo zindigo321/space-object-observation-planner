@@ -4,7 +4,7 @@ from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parent))
 from famou_common import ROOT,case_config,verify_fixed,write,identity
 sys.path.insert(0,str(ROOT))
-from planner.process_guard import run_guarded
+from planner.process_guard import run_guarded,guarded_argv
 from planner.no_fault import checked_output
 
 BUDGETS={'prepare':40,'solve':30,'write':20,'evaluate':80}
@@ -31,8 +31,8 @@ def main():
         cmd=[sys.executable,'-I','-B','-X','utf8',*map(str,args)]
         row=run_guarded(cmd,timeout=BUDGETS[name],deadline_monotonic=deadline,
                         log_path=out/(name+'.log'),cwd=work)
-        row.update(phase=name,command=cmd,budget_seconds=BUDGETS[name]);receipt['phases'].append(row)
-        if name=='solve':receipt.update(command=cmd,solve=row)
+        row.update(phase=name,command=row['argv'],requested_command=cmd,budget_seconds=BUDGETS[name]);receipt['phases'].append(row)
+        if name=='solve':receipt.update(command=row['argv'],solve=row)
         if name=='evaluate':write(out/'evaluator_execution.json',row)
         if row['timed_out'] or row['exit_code']!=0 or not row['cleanup']['confirmed']:
             receipt.update(timed_out=row['timed_out'],status='TIMEOUT' if row['timed_out'] else 'FAIL',
@@ -57,6 +57,8 @@ def main():
         receipt['command']=[sys.executable,'-I','-B','-X','utf8',str(worker),'solve',
                             '--candidate',str(candidate),'--input',str(prepared),
                             '--package-root',str(ROOT),'--out',str(proposal)]
+        receipt['requested_command']=receipt['command']
+        receipt['command']=guarded_argv(receipt['requested_command'])
         receipt['executed_copy_before']=identity(candidate)
         if receipt['executed_copy_before']!=receipt['candidate']:
             raise ValueError('candidate copy changed before launch')
