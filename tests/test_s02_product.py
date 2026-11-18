@@ -1,5 +1,4 @@
 import hashlib
-from pathlib import Path
 
 import pytest
 
@@ -35,3 +34,19 @@ def test_resealing_a_changed_ordered_stream_does_not_change_authority(tmp_path,m
     monkeypatch.setattr(s02_input,'authority',lambda:(contract,{}))
     with pytest.raises(ValueError,match='frozen ordered stream mismatch: candidates'):
         s02_input.check_input(tmp_path)
+
+def test_successful_exit_observed_after_30_seconds_is_not_admitted(tmp_path,monkeypatch):
+    import time
+    from scripts import s02_cli
+    cold = tmp_path/'input'
+    cold.mkdir()
+    (cold/'INPUT_MANIFEST.json').write_text('{}')
+    out = tmp_path/'run'
+    out.mkdir()
+    monkeypatch.setattr(s02_cli,'check_input',lambda path: None)
+    delayed = dict(exit_code=0,raw_exit_code=0,timed_out=False,execution_seconds=30.0001,
+                   cleanup=dict(confirmed=True,active_processes=0))
+    monkeypatch.setattr(s02_cli,'run_guarded',lambda *args,**kw: delayed)
+    assert s02_cli.calculate_case('initial','baseline',cold,None,out,time.monotonic()+600) == 3
+    assert s02_input.read(out/'case.json')['status'] == 'TIMEOUT'
+    assert not (out/'evaluation').exists()

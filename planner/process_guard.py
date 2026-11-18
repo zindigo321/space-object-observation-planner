@@ -139,15 +139,19 @@ def run_guarded(command, *, timeout, log_path, cwd=None, deadline_monotonic=None
                 start_new_session=not bool(job),**launch_options)
             if job: job.attach_and_resume(process)
             try:
-                wait_seconds=max(0,deadline-time.monotonic())
+                wait_seconds=max(0,min(deadline-time.monotonic(), started+timeout-time.perf_counter()))
                 code=process.wait(timeout=wait_seconds) if job else _wait_posix_leader(process,deadline)
                 natural_exit_code=code
-                if time.monotonic()>deadline:
-                    timed_out=True;code=3
             except subprocess.TimeoutExpired:
                 timed_out=True
                 code=3
             execution_seconds=time.perf_counter()-started
+            # On CPython 3.11/Windows monotonic() can have a coarser tick than
+            # perf_counter(). Admission uses the same high-resolution interval
+            # recorded in the receipt, including spawn/attach and natural exit.
+            if execution_seconds>timeout or time.monotonic()>deadline:
+                timed_out=True
+                code=3
             cleanup_started=time.perf_counter()
             cleanup=job.terminate_and_wait() if job else _posix_cleanup(process)
             cleaned=True

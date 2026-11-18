@@ -81,7 +81,11 @@ def calculate_case(action, method, input_dir, initial, out, deadline):
                         timeout=30,log_path=out/'solve.log',cwd=ROOT)
     case['solve'] = dict(solve,budget_seconds=30)
     case['status'] = 'TIMEOUT' if solve['timed_out'] or solve['exit_code']==3 else 'FAIL'
-    if solve['exit_code'] or solve['timed_out'] or not solve['cleanup']['confirmed'] or solve['cleanup']['active_processes']:
+    if solve['execution_seconds'] > 30 or solve['timed_out']:
+        case['status'] = 'TIMEOUT'
+        write(out/'case.json',case)
+        return 3
+    if solve['exit_code'] or not solve['cleanup']['confirmed'] or solve['cleanup']['active_processes']:
         write(out/'case.json',case)
         return solve['exit_code'] or 2
     native = read(out/'solve/native.json')
