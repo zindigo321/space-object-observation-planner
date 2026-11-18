@@ -50,3 +50,8 @@ def test_successful_exit_observed_after_30_seconds_is_not_admitted(tmp_path,monk
     assert s02_cli.calculate_case('initial','baseline',cold,None,out,time.monotonic()+600) == 3
     assert s02_input.read(out/'case.json')['status'] == 'TIMEOUT'
     assert not (out/'evaluation').exists()
+
+def test_unsupported_machine_fails_before_dll_loading(monkeypatch):
+    monkeypatch.setattr(s02_input.platform,'machine',lambda:'ARM64')
+    with pytest.raises(ValueError,match='Windows x64'):
+        s02_input.platform_check()

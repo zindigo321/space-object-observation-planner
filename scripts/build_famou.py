@@ -47,6 +47,10 @@ def main():
         add('data/S02/'+name,raw,'frozen S02 instance or raw material','c118d8e frozen S02')
     if fp(payload['famou/native/frozen_native.dll'][0])!=contract['native']:
         raise ValueError('S02 committed DLL hash mismatch')
+    abi=json.loads(payload['famou/native/ABI.json'][0])
+    source=fp(payload['famou/native/frozen_native.cpp'][0])
+    if source!=contract['native_source'] or source!=abi['build']['source'] or contract['native']!=abi['build']['output']:
+        raise ValueError('S02 C++ export, DLL and embedded compiler/ABI receipt must match')
     wheels=[]
     for wheel in sorted(Path(a.wheelhouse).glob('*.whl')):
         add('wheelhouse/'+wheel.name,wheel.read_bytes(),'offline Windows CPython3.11 dependency','PyPI exact pinned wheel')

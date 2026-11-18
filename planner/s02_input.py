@@ -1,7 +1,10 @@
 """Frozen S02 authority and lossless, ordered compressed product input."""
+import ctypes
 import gzip
 import hashlib
 import json
+import platform
+import sys
 import tempfile
 import time
 from datetime import datetime, timezone
@@ -14,6 +17,13 @@ DATA = ROOT / 'data' / 'S02'
 RAW = DATA / 'raw'
 STREAMS = ('windows', 'candidates', 'pruning', 'propagation_errors')
 MEMBERS = {'meta.json', 'progress.json', 'target_progress.jsonl.gz', *(n+'.jsonl.gz' for n in STREAMS)}
+
+
+def platform_check():
+    if (sys.platform != 'win32' or platform.machine().upper() not in ('AMD64','X86_64')
+            or ctypes.sizeof(ctypes.c_void_p) != 8 or sys.implementation.name != 'cpython'
+            or sys.version_info[:2] != (3,11)):
+        raise ValueError('S02 requires Windows x64 and 64-bit CPython 3.11')
 
 
 def read(path):

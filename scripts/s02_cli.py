@@ -11,7 +11,7 @@ sys.path.insert(0,str(ROOT))
 from planner.no_fault_source import reject_links
 from planner.path_safety import guard_writes
 from planner.process_guard import run_guarded
-from planner.s02_input import check_input, identity, now, read, write
+from planner.s02_input import check_input, identity, now, platform_check, read, write
 
 WORKER = ROOT/'scripts/s02_worker.py'
 BUDGET = {'cold':1800,'initial':600,'replan':600,'evaluate':600,'recheck':600}
@@ -127,7 +127,6 @@ def replay(action, input_dir, run, out):
 
 def dispatch(a):
     start = time.monotonic()
-    from planner.s02_native import platform_check
     platform_check()
     if a.action not in BUDGET:
         raise ValueError('S02 requires --action cold, initial, replan, evaluate or recheck')

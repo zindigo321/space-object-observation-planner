@@ -34,7 +34,7 @@
     "api-ms-win-crt-utility-l1-1-0.dll"
   ],
   "build": {
-    "utc": "2026-11-18T12:09:48.379124+00:00",
+    "utc": "2026-11-18T12:32:27.866190+00:00",
     "argv": [
       "C:\\msys64\\ucrt64\\bin\\g++.exe",
       "-std=c++17",
@@ -54,13 +54,14 @@
     },
     "compiler_version": "g++.exe (Rev3, Built by MSYS2 project) 13.2.0\nCopyright (C) 2023 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\n",
     "source": {
-      "bytes": 9039,
-      "sha256": "7439f5b05e0f456e8f5022d096d16864821ddc3e5c91b2a9f438f0c92ff68e22"
+      "bytes": 8846,
+      "sha256": "87b92db26f4847654bd5a1c8af777014f285fbeab126e9c0a67f04f8a04f7203"
     },
     "returncode": 0,
     "output": {
       "bytes": 587313,
       "sha256": "95f539caea5dbf4cd46b0b34e678123089316fd6559c30376d40a246e5b94251"
     }
-  }
+  },
+  "source_git_object": "dcc4cad544607c008845d2ea55252f90c75c46fd"
 }

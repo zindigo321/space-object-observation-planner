@@ -1,25 +1,16 @@
 """Windows x64 binding for the frozen greedy and conflict-loss constructors."""
 import ctypes
-import platform
-import sys
 import time
 from pathlib import Path
 
 import numpy as np
 
-from .s02_input import ROOT, identity, read, write
+from .s02_input import ROOT, identity, platform_check, read, write
 
 ROW = np.dtype([('target','<i4'),('site','<i4'),('start','<i4'),('end','<i4'),
                 ('points','<i4'),('window','<i4'),('id','S16')])
 SLOT = np.dtype([('target','<i4'),('site','<i4'),('start','<i4'),('end','<i4')])
 CHECK = ctypes.CFUNCTYPE(ctypes.c_int)
-
-
-def platform_check():
-    if (sys.platform != 'win32' or platform.machine().upper() not in ('AMD64','X86_64')
-            or ctypes.sizeof(ctypes.c_void_p) != 8 or sys.implementation.name != 'cpython'
-            or sys.version_info[:2] != (3,11)):
-        raise ValueError('S02 requires Windows x64 and 64-bit CPython 3.11')
 
 
 def slots(items):
