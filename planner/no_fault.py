@@ -41,6 +41,10 @@ def choose_from_files(source_dir, expected_sha256, decision_s, proposal):
     retained=[dict(r,status=status_at(r,decision_s)) for r in source['initial']]
     jr=verify_tasks(source,decision_s,retained)['J']
     jp=verify_tasks(source,decision_s,proposal,False)['J']
+    return _select_by_j(source['initial'],retained,proposal,jr,jp)
+
+
+def _select_by_j(initial, retained, proposal, jr, jp):
     if tuple(jp)>tuple(jr):
         branch='ACCEPT_CANDIDATE_STRICTLY_BETTER';origin='raw_proposal'
         selected=proposal
@@ -49,7 +53,7 @@ def choose_from_files(source_dir, expected_sha256, decision_s, proposal):
     else:
         branch='KEEP_RETAINED_TIE';origin='retained_original';selected=retained
     return copy.deepcopy(selected),dict(branch=branch,selected_source=origin,J_retained=jr,J_proposal=jp,
-        J_selected=jp if tuple(jp)>tuple(jr) else jr,physical_changes=changes(source['initial'],selected))
+        J_selected=jp if tuple(jp)>tuple(jr) else jr,physical_changes=changes(initial,selected))
 
 def write_tasks(path, rows, fields):
     values=[dict(r,**({'target_id':r['satnum']} if 'target_id' in fields else {})) for r in rows]

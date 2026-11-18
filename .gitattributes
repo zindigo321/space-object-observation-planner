@@ -19,3 +19,7 @@
 *.png -text
 *.jpg -text
 *.pdf -text
+
+# Keep the reproducible S02 native build byte-identical in Windows worktrees.
+famou/native/frozen_native.cpp text eol=lf
+famou/native/frozen_native.dll -text
