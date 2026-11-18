@@ -1,5 +1,7 @@
 """Local research adapter. All packing, indexing, search and selection run inside solve."""
 import ctypes
+import json
+import time
 from pathlib import Path
 import numpy as np
 
@@ -21,6 +23,7 @@ def install(scheduler):
     cached_source=packed=None
     def select(candidates, fixed, interrupted, clock, method):
         nonlocal cached_source,packed
+        started=time.perf_counter(); reused=cached_source is candidates
         if cached_source is not candidates:
             wins={}
             def records():
@@ -34,7 +37,9 @@ def install(scheduler):
             try: packed=np.fromiter(records(),dtype=ROW,count=len(candidates))
             except (ValueError,OverflowError): packed=None
             cached_source=candidates
-        if packed is None: return legacy[method](candidates,fixed,interrupted,clock)
+        if packed is None:
+            print(json.dumps(dict(backend='legacy',reason='unsupported_row_encoding',method=method)),flush=True)
+            return legacy[method](candidates,fixed,interrupted,clock)
         frozen,fragments=slots(fixed),slots(interrupted)
         selected=np.empty(len(candidates),dtype='<i4')
         errors=[]
@@ -43,10 +48,15 @@ def install(scheduler):
             try: clock.check();return 0
             except Exception as e: errors.append(e);return 1
         clock.check()
+        native_start=time.perf_counter()
+        print(json.dumps(dict(backend='native',event='call',method=method,rows=len(packed),reused_packed_rows=reused,packing_and_setup_s=native_start-started)),flush=True)
         n=kernel(packed.ctypes.data,len(packed),frozen.ctypes.data,len(frozen),fragments.ctypes.data,len(fragments),
                  method,selected.ctypes.data,check)
+        print(json.dumps(dict(backend='native',event='return',method=method,returned=n,kernel_s=time.perf_counter()-native_start)),flush=True)
         if errors: raise errors[0]
-        if n==-2: return legacy[method](candidates,fixed,interrupted,clock)
+        if n==-2:
+            print(json.dumps(dict(backend='legacy',reason='unsupported_candidate_order_or_range',method=method)),flush=True)
+            return legacy[method](candidates,fixed,interrupted,clock)
         if n<0: raise RuntimeError(f'frozen native constructor returned {n}')
         result=[dict(r) for r in fixed]+[dict(candidates[i]) for i in selected[:n]]
         clock.check()
