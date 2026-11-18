@@ -82,8 +82,9 @@ def produce(a):
     print(json.dumps(summary|{'all_target_ids':'stored_in_progress','executable_ids':'stored_in_progress'}),flush=True)
 
 def load(a):
+    from candidate_io import read_candidates
     root=Path(a.input);check_input(root);meta=read(root/'meta.json')
-    windows=rows(root/'windows.jsonl.gz');candidates=rows(root/'candidates.jsonl.gz')
+    windows=rows(root/'windows.jsonl.gz');candidates=read_candidates(root/'candidates.jsonl.gz')
     day=datetime.fromisoformat(meta['spec']['start_utc'].replace('Z','+00:00'))
     context=dict(day=day,horizon=meta['config']['horizon_seconds'],priorities={r['satnum']:r['priority'] for r in meta['records']},
         stations=set(meta['config']['station_ids']),windows={w['window_id']:w for w in windows})
@@ -134,10 +135,18 @@ def prepare(a):
         independent_geometry_s=time.perf_counter()-t1,total_s=time.perf_counter()-t0,
         input_manifest_sha256=ident(Path(a.input)/'INPUT_MANIFEST.json')['sha256']))
 
+def configure_scheduler():
+    from planner import scheduler
+    if not getattr(scheduler,'_research_native',False):
+        from fast_scheduler import install
+        install(scheduler)
+        scheduler._research_native=True
+
 def solve(a):
     # Entire interpreter, imports, input load, candidate code and output are inside parent solve30.
     from planner import scheduler
     from planner.common import TASK_FIELDS,csv_write
+    configure_scheduler()
     out=Path(a.out);out.mkdir(parents=True,exist_ok=False)
     t0=time.perf_counter();meta,windows,candidates,day,context,initial=load(a)
     retained,fixed,interrupted,future,event,h=history(initial,candidates,day,a.scene)
