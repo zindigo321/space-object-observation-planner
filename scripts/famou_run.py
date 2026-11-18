@@ -5,11 +5,21 @@ sys.path.insert(0,str(Path(__file__).resolve().parent))
 from famou_common import ROOT,case_config,verify_fixed
 def main():
     p=argparse.ArgumentParser(description=__doc__)
-    p.add_argument('--case',choices=['synthetic','H180_BASE','H180_IMP'],required=True)
+    p.add_argument('--case',choices=['synthetic','H180_BASE','H180_IMP','S02'],required=True)
     p.add_argument('--method',choices=['baseline','improved'],default='baseline')
     p.add_argument('--out',required=True)
-    p.add_argument('--budget-seconds',type=float,default=180)
+    p.add_argument('--budget-seconds', type=float)
+    p.add_argument('--action', choices=['cold','initial','replan','evaluate','recheck'])
+    p.add_argument('--input', help='S02 cold input directory')
+    p.add_argument('--initial', help='S02 common initial selected.json')
+    p.add_argument('--run', help='S02 sealed planning run for evaluation or read-only replay')
     a=p.parse_args()
+    if a.case=='S02':
+        from s02_cli import dispatch
+        return dispatch(a)
+    if any((a.action,a.input,a.initial,a.run)):
+        p.error('--action, --input, --initial and --run belong to S02')
+    if a.budget_seconds is None:a.budget_seconds=180
     if not 0<a.budget_seconds<=180:raise ValueError('workflow budget must be in (0,180] seconds')
     seal=verify_fixed();source,sha,t=case_config(a.case)
     cmd=[sys.executable,'-B','-X','utf8',str(ROOT/'scripts/team3_run.py'),'--budget-seconds',str(a.budget_seconds),

@@ -72,6 +72,11 @@ def native_report(context, original, candidates, t, tasks, require_guard=True):
     """Rebuild history and original-pool membership; never accepts a prepared ticket."""
     decision(t,context['horizon'])
     pool = validate_source(context,original,candidates)
+    return _report_with_pool(context,original,pool,t,tasks,require_guard)
+
+
+def _report_with_pool(context, original, pool, t, tasks, require_guard=True):
+    """Caller has reopened and validated the complete original pool in this process."""
     retained = [dict(r,status=status_at(r,t)) for r in original]
     fixed = [r for r in retained if r['status'] in ('completed','locked')]
     require(Counter(map(signature,fixed)) ==

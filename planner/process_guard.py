@@ -120,6 +120,7 @@ def run_guarded(command, *, timeout, log_path, cwd=None, deadline_monotonic=None
     started=time.perf_counter()
     deadline=min(time.monotonic()+timeout,deadline_monotonic) if deadline_monotonic is not None else time.monotonic()+timeout
     process=None
+    natural_exit_code=None
     timed_out=False
     cleaned=False
     launch_options={}
@@ -140,6 +141,7 @@ def run_guarded(command, *, timeout, log_path, cwd=None, deadline_monotonic=None
             try:
                 wait_seconds=max(0,deadline-time.monotonic())
                 code=process.wait(timeout=wait_seconds) if job else _wait_posix_leader(process,deadline)
+                natural_exit_code=code
                 if time.monotonic()>deadline:
                     timed_out=True;code=3
             except subprocess.TimeoutExpired:
@@ -151,7 +153,7 @@ def run_guarded(command, *, timeout, log_path, cwd=None, deadline_monotonic=None
             cleaned=True
             process.wait(timeout=10)
             cleanup['seconds']=time.perf_counter()-cleanup_started
-        return dict(exit_code=code,raw_exit_code=process.returncode,timed_out=timed_out,
+        return dict(exit_code=code,raw_exit_code=process.returncode,natural_exit_code=natural_exit_code,timed_out=timed_out,
                     argv=actual_argv,requested_argv=list(map(str,command)),launch_executable=actual_argv[0],
                     venv_identity_preserved=bool(launch_options),
                     seconds=time.perf_counter()-started,execution_seconds=execution_seconds,

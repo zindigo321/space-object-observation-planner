@@ -1,108 +1,57 @@
-# bd-fmb-observation-planner
+# bd-fmb 观测任务规划产品版
 
-## 2026-11-17 百度伐谋测试交付
+本地发行包含 S02 的 1,800 个冻结空间目标、10 个观测站及 2026-07-31 UTC 全日原料，同时提供 H180 和 synthetic 接口。运行环境为 Windows x64 与 64 位 CPython 3.11。根目录 SOURCE_IDENTITY.json 给出实际提交、源码、DLL 及白名单。实际成绩、计时和本次 ZIP 哈希见包外 FINAL_ACCEPTANCE.json。
 
-本地正式实验矩阵 4/4；四组 seal、全新路径 post/读回及程序 accept 已通过。 百度端：待用户在百度伐谋测试。
+## 从解压包运行
 
-本轮完整测试ZIP带真实H180与合成输入、固定评价器、锁定依赖及upload/文件。请使用以下相对路径入口；旧smoke.yaml和后文历史命令不代表本次完整交付。
-
-```powershell
-python -m pip install --no-index --find-links wheelhouse -r famou/requirements-lock.txt
-python scripts/famou_run.py --case synthetic --out ../runs/synthetic_01
-python scripts/famou_run.py --case H180_IMP --method improved --out ../runs/H180_IMP_01
-python scripts/famou_evaluator.py --case H180_IMP --tasks ../runs/H180_IMP_01/run/selected.csv --out ../runs/evaluate_01
-python scripts/team3_run.py recheck --source ../runs/H180_IMP_01/run --source-sha256 b9567a450adf332fe587e9e325af0d61654e0268e1a889868e9d396d33e1dfac --out ../runs/recheck_01
-```
-
-每次使用新的包外输出目录。百度上传方式见[平台指南](famou/PLATFORM_GUIDE.md)，问题和约束见[问题定义](famou/problem.md)，完整结果边界见[交付状态](docs/FAMOU_DELIVERY_STATUS.md)。最终验收以与ZIP哈希绑定的包外回执为准。
-
-以下保留原项目说明与历史入口。
-
-自主观测任务规划。项目提供贪心基线、改进算法、站点故障后的重规划、原生无故障重排保护、独立校验及离线 Demo 生成工具。
-
-Git 仓库包含源码、测试、合成示例和接入文档；真实比赛数据与完整运行产物保存在本地。无真实数据时也可以运行下面的合成流程。
-
-## 快速开始（Windows / Python 3.11）
-
-在 PowerShell 执行：
+在解压包根用 PowerShell 执行。python 须为 64 位 CPython 3.11，Git 命令行用于项目中的临时仓库回归用例。每次使用新的包外输出目录。
 
 ```powershell
-git clone https://github.com/zindigo321/wznb.git
-Set-Location wznb
-
-conda create -n bd-fmb python=3.11 -y
-conda activate bd-fmb
-python -m pip install -r requirements.txt
-if ($LASTEXITCODE -ne 0) { throw '依赖安装失败' }
-
-python -X utf8 scripts/team3_run.py synthetic --out outputs/synthetic_01
-if ($LASTEXITCODE -ne 0) { throw '查看控制台和 workflow.json' }
+python -m venv "../S02 环境"
+$py = (Resolve-Path "../S02 环境/Scripts/python.exe").Path
+& $py -m pip install --isolated --no-index --find-links wheelhouse -r famou/requirements-test-lock.txt
+if ($LASTEXITCODE) { throw "安装失败" }
+$cli = "scripts/famou_run.py"
+$r = "../S02 运行"
+& $py -B -X utf8 $cli --case S02 --action cold --out "$r/cold"
+if ($LASTEXITCODE) { throw "冷生产失败" }
+foreach ($method in "baseline","improved") {
+    & $py -B -X utf8 $cli --case S02 --action initial --input "$r/cold/input" --method $method --out "$r/init_$method"
+    if ($LASTEXITCODE) { throw "初始规划失败" }
+}
+foreach ($origin in "baseline","improved") {
+    foreach ($method in "baseline","improved") {
+        & $py -B -X utf8 $cli --case S02 --action replan --input "$r/cold/input" --initial "$r/init_$origin/evaluation/selected.json" --method $method --out "$r/from_${origin}_$method"
+        if ($LASTEXITCODE) { throw "重排失败" }
+    }
+}
+foreach ($name in "init_baseline","init_improved","from_baseline_baseline","from_baseline_improved","from_improved_baseline","from_improved_improved") {
+    foreach ($action in "evaluate","recheck") {
+        & $py -B -X utf8 $cli --case S02 --action $action --input "$r/cold/input" --run "$r/$name" --out "$r/${action}_$name"
+        if ($LASTEXITCODE) { throw "独立评价或只读复查失败" }
+    }
+}
+& $py -B -X utf8 -m pytest -q tests --basetemp="../S02 回归临时目录"
 ```
 
-已有 `bd-fmb` 环境时，从激活环境开始。源码包解压后同样可从包根运行，不需要 `.git`。每次必须使用新的输出目录，例如下次改成 `outputs/synthetic_02`。
+## S02 输入、时限与评价
 
-该命令依次运行基线规划、初始/故障独立评价和只读复查。合成例预期初始10分、故障后3分，两者均零违例；它验证接口和故障处理，不代表真实算法收益。结果位于 `outputs/synthetic_01`，总回执为 `workflow.json`。
+冷生产从两份原始压缩档及五份原始文本核验并解析 TLE、优先级和站址，再按冻结实例中的顺序处理每个目标的完整 86,400 秒。使用整数秒时间轴复用几何变换，窗口粗网格 30 秒、细化 1 秒，仰角 10–85 度。120/240 秒时长以 30 秒候选起点网格及末端补点生成，每个窗口每种时长最多保留 12 个均匀位置。目标按实例顺序处理，窗口和候选跨目标连续编号。冻结对照为 68,069 个窗口、6,937,709 条原始网格候选、1,177,265 条保留候选。
 
-## 运行测试与协作
+cold/input/ 使用与研究记录相同的有序 gzip NDJSON 任务模式。程序校验完整窗口、候选、裁剪与传播错误流的 SHA256、目标逐项计数、TLE、站址、优先级、规则及顺序。支持本发行冷生产的目录和与之完整匹配的冻结 S02 研究输入。每次冷生产写入实际时间、实际归档和 INPUT_MANIFEST.json，运行绑定到本次 manifest 的 SHA256。原始输入身份和语义流的校验值在 configs/s02_contract.json。
+
+初始规划使用空历史。无故障重排从指定初始方案建立历史，决策时刻为第 3,600 秒，已完成和跨越此时刻的任务固定。未来任务必须属于原始候选池，每个目标最多成功一次，同站切换间隔至少 30 秒。高、中、低优先级权重为 5、3、2，120/240 秒分别乘 3/5 取得整数分。J 按整数分、覆盖目标数的字典序比较。严格改善才接受 raw，平局及退化均保留按决策时刻更新状态的原行、字段和顺序。evaluation/ 含 retained、raw、selected 的评分与逐秒几何明细、分支和选用计划。评价器从原始 TLE 重新传播，覆盖任务两端及所有内部整数秒。
+
+冷生产预算 1,800 秒。S02 每个规划、独立评价或复查命令各自预算 600 秒，可用 --budget-seconds 收紧。可信父进程在启动子解释器前开始 30 秒求解计时，将挂起的进程加入 Windows Job 后才放行。导入、DLL 装载、读取解码、历史/索引、搜索、JSON 和 CSV 写出都在该 Job 内。退出后等待该 Job 活跃进程数归零。超时返回码 3，读取 workflow.json、case.json、solve.log 和 solve/native.json 核对原始退出码、自然退出与父级清理。只有完成的受控规划可进入独立评价与只读复查。复查重新打开独立原料和共同起点，并逐文件比较重算产物及源运行哈希。
+
+## H180 和合成接口
 
 ```powershell
-python -m pip install -r requirements-dev.txt
-if ($LASTEXITCODE -ne 0) { throw '开发依赖安装失败' }
-New-Item -ItemType Directory -Path outputs -Force | Out-Null
-python -X utf8 -m pytest tests -q --basetemp=outputs/pytest_01
+& $py scripts/famou_run.py --case synthetic --out "../旧入口/synthetic"
+& $py scripts/famou_run.py --case H180_BASE --method baseline --out "../旧入口/H180_BASE"
+& $py scripts/famou_run.py --case H180_IMP --method improved --out "../旧入口/H180_IMP"
+& $py scripts/famou_evaluator.py --case H180_IMP --tasks "../旧入口/H180_IMP/run/selected.csv" --out "../旧入口/evaluate"
+& $py scripts/team3_run.py recheck --source "../旧入口/H180_IMP/run" --source-sha256 b9567a450adf332fe587e9e325af0d61654e0268e1a889868e9d396d33e1dfac --out "../旧入口/recheck"
 ```
 
-测试目录也应每次使用新名称。GitHub 工作流提供 `Windows Python 3.11` 检查，首次云端运行状态以 [Actions 页面](https://github.com/zindigo321/wznb/actions)为准。协作、PR 和格式约定见 [CONTRIBUTING.md](CONTRIBUTING.md)。干净环境安装是否已通过，应以云端安装步骤或单独安装回执为证，不能由现有环境运行结果推断。
-
-## 项目结构
-
-| 目录/入口 | 用途 |
-| --- | --- |
-| `planner/` | 调度、重规划、独立校验、窗口适配及安全读写 |
-| `scripts/` | 团队接入、数据试读、受控实验和 Demo 生成 |
-| `smoke_test.py` | 规划、独立评价及只读复查统一入口 |
-| `configs/` | 合成及固定种子实验配置 |
-| `examples/synthetic/` | 可公开运行的合成输入 |
-| `tests/` | 接口、故障历史、路径和写入安全回归 |
-| `demo/` | 离线演示模板和说明 |
-| `docs/` | 接入契约、交接与实验说明 |
-
-## 队友接入与实验结果
-
-- [3号接入说明](docs/TEAM3_INTEGRATION.md)：从解压、运行到独立评价。
-- [1号数据试读](docs/TEAM1_DATA_INTAKE.md)：标准窗口四文件及来源检查。
-- [输入输出契约](docs/io_contract.md)：UTC、字段、故障边界和返回码。
-- [原生无故障流程](docs/NO_FAULT_NATIVE.md)：冻结 source 包、严格选择、真实历史评价与零求解重查。
-- [稳定交接](docs/STABLE_HANDOFF.md)：源码包与仅本地转交的参考包。
-- [离线 Demo](demo/README.md)与[演示讲稿](docs/DEMO_SCRIPT.md)。
-- [E5受控对照](docs/PATH_SAFETY_E5_HANDOFF.md)、[多种子与较晚故障实验](docs/IMPROVEMENT_DEMO_HANDOFF.md)、[原子写入修复](docs/ATOMIC_WRITE_FIX_HANDOFF.md)。
-- [基线交接](BASELINE_HANDOFF.md)、[实验记录](EXPERIMENTS.md)、[进度记录](PROGRESS.md)、[团队待确认项](docs/team_questions.md)。
-
-截至2026年10月30日，R20已完成180目标、十站、2026-08-05全天共同输入的生产与封存交付，状态为INPUT_DELIVERY_PASS：6709窗口、116223候选、180个可执行目标。schedule／原生backend／initial／native均为0，没有新增J、completed或方法收益；R21的2 initial＋4 native仍为计划。候选池3000整数分仅为松上界。详见[R20输入交付](docs/R20_INPUT_DELIVERY.md)。
-
-此前本机验证已包含第十四轮三站／十站共享初始对照、第十七轮连续状态链，以及第十八轮十站空历史初始化。第十八轮数据通过、封存失败，整体保持PARTIAL；第十九轮以零新增求解完成其证据恢复、正式封存、执行版本验收和独立新路径迁移，恢复交付通过。R19不把R18改记为完整PASS。
-
-R20绑定已合入main的 `b0e646159a36a4d4375afc083f3b8db793bc131b` 完整99文件树；生产代码与此前 `83d3014` 绑定版本一致，差异为公开文档。原生 `no-fault` 使用 `J=(权威整数分,唯一覆盖)` 严格字典序选择，合法候选严格改善才接纳；低值／平局原字节保留retained。主分提高时覆盖仍可能下降，该保护不自动改变历史fault／legacy入口。本次更新仅同步文档，不新增产品算法、恢复API或测试通过数量。
-
-R17完成8节点、8次schedule、28份外检及8份新几何，八节点均平局保留；R18完成2次initial和4次native，新initial为(914,60)、(1000,60)，但初始化分数提高不保证后续路径分数提高。R19新增schedule／原生backend／TLE传播均为0，只复核已有历史结果。历史失败、各轮独立预算和比较边界见[当前状态](docs/CURRENT_STATUS.md)、[R19恢复记录](docs/R19_RECOVERY_STATUS.md)及[实验记录](EXPERIMENTS.md)。
-
-真实数据、任务表、完整恢复包、机器回执和本机提示词保留本地；仓库提供源码、合成输入和聚合事实。本机新路径独立验收不等于异机或现场设备验收。
-
-## 本机真实 TLE 实验
-
-以下命令仅适用于已有忽略目录 `prototype_v1/data_raw` 与原冻结样本的本机工程。新克隆应先运行合成示例；旧 TLE 全量移机未验证。
-
-```powershell
-# 在本机项目根、已激活的既有环境中执行。
-$py = 'python'
-& $py -X utf8 smoke_test.py --config configs/smoke.yaml --method baseline --out outputs/baseline_01
-if ($LASTEXITCODE -ne 0) { throw '规划未通过' }
-& $py -X utf8 smoke_test.py --check-only --source outputs/baseline_01 --out outputs/recheck_01
-if ($LASTEXITCODE -ne 0) { throw '复查未通过' }
-```
-
-不修改原始数据和封存结果。E5复核须使用其专用 `scripts/run_replan_e5.py --check-only`，见对应交接说明。`requirements-lock.txt` 为本机原有完整环境快照，保持忽略，不作为公共依赖文件。
-
-## 验证范围
-
-每目标一次成功、中断零分、120/240秒离散得分、海拔近似椭球高是当前测试口径。几何仰角不代表完整光学可观测；标准窗口接入只检查供应窗口内的调度约束，不认证夜间、受光、天气等声明。R12增加同源同日的60/180相关规模，R13增加同一60目标的跨日/龄期敏感性；R14、R17和R18进一步验证同源60目标、十站、24小时模型；R20只扩展至180目标的共同窗口和候选输入，尚无该规模算法矩阵。十站完整六天、全10000目标、独立新来源、完整光学设备、正式评分和异机接收发布未验证。真实运行包仅在本机新路径完成迁移及零求解重查，不等于异机/设备现场验收。正式规则和两套评分差异待明确。
+H180 的总预算上限为 180 秒。历史 H180 问题与外部候选脚本契约见 famou/problem.md。上传恢复、Windows 运行库和百度端待验收说明见 famou/PLATFORM_GUIDE.md，编译器及 ABI 见 famou/native/BUILD.md。
