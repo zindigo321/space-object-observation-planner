@@ -1,0 +1,17 @@
+{
+  "H180_BASE": {
+    "source": "data/H180_BASE",
+    "source_sha256": "571bd32b2265aa46f7fa09cfbee9af4cf7be1d5cb57e63916d11e0d04cb12914",
+    "decision_s": 3600
+  },
+  "H180_IMP": {
+    "source": "data/H180_IMP",
+    "source_sha256": "b9567a450adf332fe587e9e325af0d61654e0268e1a889868e9d396d33e1dfac",
+    "decision_s": 3600
+  },
+  "synthetic": {
+    "source": "data/synthetic",
+    "source_sha256": "da728068c566d3755cf36433c40d12b1e74e8e55d8627a41efa59d757f151f76",
+    "decision_s": 120
+  }
+}

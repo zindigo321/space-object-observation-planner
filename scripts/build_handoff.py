@@ -17,7 +17,7 @@ from planner.runner import versions
 
 TOP={'.gitignore','.gitattributes','.editorconfig','CONTRIBUTING.md','README.md','BASELINE_HANDOFF.md','EXPERIMENTS.md','PROGRESS.md','requirements.txt','requirements-dev.txt','smoke_test.py'}
 GITHUB_FILES={'.github/pull_request_template.md','.github/workflows/ci.yml'}
-SUFFIXES={'planner':{'.py'},'scripts':{'.py','.mjs'},'tests':{'.py'},'configs':{'.yaml','.json'},'docs':{'.md','.json','.yaml'}}
+SUFFIXES={'planner':{'.py'},'scripts':{'.py','.mjs'},'tests':{'.py'},'configs':{'.yaml','.json'},'docs':{'.md','.json','.yaml'},'famou':{'.py','.md','.txt','.json'}}
 
 
 def source_allowed(name):

@@ -1,0 +1,289 @@
+{
+  "git_files": [
+    ".editorconfig",
+    ".gitattributes",
+    ".github/pull_request_template.md",
+    ".github/workflows/ci.yml",
+    ".gitignore",
+    "CONTRIBUTING.md",
+    "README.md",
+    "configs/demo_synthetic.json",
+    "configs/famou_cases.json",
+    "configs/improvement_demo.json",
+    "configs/late_fault.json",
+    "configs/s02_contract.json",
+    "configs/seed17.yaml",
+    "configs/seed23.yaml",
+    "configs/smoke.yaml",
+    "configs/synthetic.yaml",
+    "demo/README.md",
+    "demo/template.html",
+    "docs/DEMO_SCRIPT.md",
+    "docs/NO_FAULT_NATIVE.md",
+    "docs/STABLE_HANDOFF.md",
+    "examples/synthetic/metadata.json",
+    "examples/synthetic/no_fault_candidates.csv",
+    "examples/synthetic/no_fault_initial_plan.csv",
+    "examples/synthetic/no_fault_metadata.json",
+    "examples/synthetic/no_fault_model.json",
+    "examples/synthetic/no_fault_stations.csv",
+    "examples/synthetic/no_fault_targets.csv",
+    "examples/synthetic/no_fault_windows.csv",
+    "examples/synthetic/stations.csv",
+    "examples/synthetic/targets.csv",
+    "examples/synthetic/windows.csv",
+    "famou/FAMOU_START_PROMPT.txt",
+    "famou/PLATFORM_GUIDE.md",
+    "famou/initial_candidate.py",
+    "famou/native/ABI.json",
+    "famou/native/BUILD.md",
+    "famou/native/build_native.py",
+    "famou/native/frozen_native.cpp",
+    "famou/native/frozen_native.dll",
+    "famou/problem.md",
+    "famou/release_files.json",
+    "famou/requirements-lock.txt",
+    "famou/requirements-test-lock.txt",
+    "planner/__init__.py",
+    "planner/atomic_io.py",
+    "planner/common.py",
+    "planner/config.py",
+    "planner/experiment_inputs.py",
+    "planner/io_contract.py",
+    "planner/legacy_checks.py",
+    "planner/no_fault.py",
+    "planner/no_fault_cli.py",
+    "planner/no_fault_clock.py",
+    "planner/no_fault_rules.py",
+    "planner/no_fault_source.py",
+    "planner/path_safety.py",
+    "planner/process_guard.py",
+    "planner/replan_comparison.py",
+    "planner/runner.py",
+    "planner/s02_axis.py",
+    "planner/s02_candidates.py",
+    "planner/s02_input.py",
+    "planner/s02_native.py",
+    "planner/s02_plan.py",
+    "planner/scheduler.py",
+    "planner/tle_adapter.py",
+    "planner/validator.py",
+    "requirements-dev.txt",
+    "requirements.txt",
+    "scripts/browser_demo_test.mjs",
+    "scripts/budget_run.py",
+    "scripts/build_demo.py",
+    "scripts/build_famou.py",
+    "scripts/build_handoff.py",
+    "scripts/famou_candidate_runner.py",
+    "scripts/famou_candidate_worker.py",
+    "scripts/famou_common.py",
+    "scripts/famou_evaluator.py",
+    "scripts/famou_run.py",
+    "scripts/inspect_team1_input.py",
+    "scripts/make_no_fault_example.py",
+    "scripts/no_fault_backend.py",
+    "scripts/restore_upload.py",
+    "scripts/run_improvement.py",
+    "scripts/run_replan_e5.py",
+    "scripts/s02_cli.py",
+    "scripts/s02_worker.py",
+    "scripts/summarize_acceptance.py",
+    "scripts/summarize_e5_acceptance.py",
+    "scripts/team3_run.py",
+    "scripts/verify_control.py",
+    "scripts/verify_delivery.py",
+    "scripts/verify_e5_history.py",
+    "scripts/verify_formal_matrix.py",
+    "scripts/verify_late_history.py",
+    "smoke_test.py",
+    "tests/no_fault_fixtures.py",
+    "tests/test_atomic_io.py",
+    "tests/test_delivery_regressions.py",
+    "tests/test_famou_runtime.py",
+    "tests/test_handoff_intake.py",
+    "tests/test_improvement_demo.py",
+    "tests/test_no_fault.py",
+    "tests/test_no_fault_budget.py",
+    "tests/test_no_fault_budget_process.py",
+    "tests/test_no_fault_cli.py",
+    "tests/test_no_fault_workflow_finalization.py",
+    "tests/test_path_safety.py",
+    "tests/test_regressions.py",
+    "tests/test_replan_e5.py",
+    "tests/test_s02_product.py"
+  ],
+  "legacy_fixed": [
+    "configs/famou_cases.json",
+    "data/H180_BASE/candidates.csv",
+    "data/H180_BASE/initial_plan.csv",
+    "data/H180_BASE/model.json",
+    "data/H180_BASE/source_manifest.json",
+    "data/H180_BASE/standard_input/metadata.json",
+    "data/H180_BASE/standard_input/stations.csv",
+    "data/H180_BASE/standard_input/targets.csv",
+    "data/H180_BASE/standard_input/windows.csv",
+    "data/H180_IMP/candidates.csv",
+    "data/H180_IMP/initial_plan.csv",
+    "data/H180_IMP/model.json",
+    "data/H180_IMP/source_manifest.json",
+    "data/H180_IMP/standard_input/metadata.json",
+    "data/H180_IMP/standard_input/stations.csv",
+    "data/H180_IMP/standard_input/targets.csv",
+    "data/H180_IMP/standard_input/windows.csv",
+    "data/geometry/model.json",
+    "data/geometry/sample.csv",
+    "data/geometry/selected_tle.json",
+    "data/geometry/stations.csv",
+    "data/synthetic/candidates.csv",
+    "data/synthetic/initial_plan.csv",
+    "data/synthetic/model.json",
+    "data/synthetic/source_manifest.json",
+    "data/synthetic/standard_input/metadata.json",
+    "data/synthetic/standard_input/stations.csv",
+    "data/synthetic/standard_input/targets.csv",
+    "data/synthetic/standard_input/windows.csv",
+    "famou/requirements-lock.txt",
+    "planner/__init__.py",
+    "planner/atomic_io.py",
+    "planner/common.py",
+    "planner/config.py",
+    "planner/experiment_inputs.py",
+    "planner/io_contract.py",
+    "planner/legacy_checks.py",
+    "planner/no_fault.py",
+    "planner/no_fault_cli.py",
+    "planner/no_fault_clock.py",
+    "planner/no_fault_rules.py",
+    "planner/no_fault_source.py",
+    "planner/path_safety.py",
+    "planner/process_guard.py",
+    "planner/replan_comparison.py",
+    "planner/runner.py",
+    "planner/scheduler.py",
+    "planner/tle_adapter.py",
+    "planner/validator.py",
+    "scripts/famou_candidate_runner.py",
+    "scripts/famou_candidate_worker.py",
+    "scripts/famou_common.py",
+    "scripts/famou_evaluator.py",
+    "scripts/famou_run.py",
+    "scripts/make_no_fault_example.py",
+    "scripts/no_fault_backend.py",
+    "scripts/team3_run.py"
+  ],
+  "legacy_data": {
+    "data/H180_BASE/standard_input/targets.csv": {
+      "sha256": "211a71b018f4f5a5ac0bc28c3c5ba700244431ebda1a9eae09d3666e1eed68ee",
+      "bytes": 2598
+    },
+    "data/H180_BASE/standard_input/stations.csv": {
+      "sha256": "6cc7eaebf30bb16859ceb93f3f869bbca09b06babdd416efa8390759bb67e03e",
+      "bytes": 43
+    },
+    "data/H180_BASE/standard_input/windows.csv": {
+      "sha256": "358e4b1c7d069297c193726ca87019d9d2ab1ece0988a707be091325f7b2287a",
+      "bytes": 389345
+    },
+    "data/H180_BASE/standard_input/metadata.json": {
+      "sha256": "c90c753c0dc79a3b51f666c026c240d2d0f886bb1148c3122e6180b0c2cc8e98",
+      "bytes": 393
+    },
+    "data/H180_BASE/candidates.csv": {
+      "sha256": "da4a423d4b6af16a4c2502cd52de5527ca23cb9cf592589c48853eb71735077f",
+      "bytes": 12741170
+    },
+    "data/H180_BASE/initial_plan.csv": {
+      "sha256": "b38a2972c117d556a33ad88ff8fe33c09252f2f8079e5f549036adcd9d4b2056",
+      "bytes": 19514
+    },
+    "data/H180_BASE/model.json": {
+      "sha256": "b520e2ef681a471d73b0785ab9202c65b561260dca48f4de2bc90dc53260066b",
+      "bytes": 480
+    },
+    "data/H180_BASE/source_manifest.json": {
+      "sha256": "571bd32b2265aa46f7fa09cfbee9af4cf7be1d5cb57e63916d11e0d04cb12914",
+      "bytes": 2108
+    },
+    "data/H180_IMP/standard_input/targets.csv": {
+      "sha256": "211a71b018f4f5a5ac0bc28c3c5ba700244431ebda1a9eae09d3666e1eed68ee",
+      "bytes": 2598
+    },
+    "data/H180_IMP/standard_input/stations.csv": {
+      "sha256": "6cc7eaebf30bb16859ceb93f3f869bbca09b06babdd416efa8390759bb67e03e",
+      "bytes": 43
+    },
+    "data/H180_IMP/standard_input/windows.csv": {
+      "sha256": "358e4b1c7d069297c193726ca87019d9d2ab1ece0988a707be091325f7b2287a",
+      "bytes": 389345
+    },
+    "data/H180_IMP/standard_input/metadata.json": {
+      "sha256": "c90c753c0dc79a3b51f666c026c240d2d0f886bb1148c3122e6180b0c2cc8e98",
+      "bytes": 393
+    },
+    "data/H180_IMP/candidates.csv": {
+      "sha256": "da4a423d4b6af16a4c2502cd52de5527ca23cb9cf592589c48853eb71735077f",
+      "bytes": 12741170
+    },
+    "data/H180_IMP/initial_plan.csv": {
+      "sha256": "9968a6e0af086077213cffabcc808222dd13b48d4c93ec6832943142047798d3",
+      "bytes": 19848
+    },
+    "data/H180_IMP/model.json": {
+      "sha256": "b520e2ef681a471d73b0785ab9202c65b561260dca48f4de2bc90dc53260066b",
+      "bytes": 480
+    },
+    "data/H180_IMP/source_manifest.json": {
+      "sha256": "b9567a450adf332fe587e9e325af0d61654e0268e1a889868e9d396d33e1dfac",
+      "bytes": 2107
+    },
+    "data/synthetic/candidates.csv": {
+      "sha256": "d1647fa882c5bdf13012544b57a26f588704e9609c98b6854ce7b8ebf82838e6",
+      "bytes": 467
+    },
+    "data/synthetic/initial_plan.csv": {
+      "sha256": "53eaf4837ef5732c4839bb157989fcc7f7712b838e1138ad14878287ef376476",
+      "bytes": 397
+    },
+    "data/synthetic/model.json": {
+      "sha256": "d847e2baba9d55b892b1bdf0665ea9dac1595620b1d29ab7f9c700b568ecbb24",
+      "bytes": 397
+    },
+    "data/synthetic/source_manifest.json": {
+      "sha256": "da728068c566d3755cf36433c40d12b1e74e8e55d8627a41efa59d757f151f76",
+      "bytes": 2022
+    },
+    "data/synthetic/standard_input/metadata.json": {
+      "sha256": "72991e10acf68566e2cdb1bb22d49898c10904148f6016f05e762a6444a97a54",
+      "bytes": 308
+    },
+    "data/synthetic/standard_input/stations.csv": {
+      "sha256": "416ae16b3d3706dda4a91291a38806be0af9ff2b76810c761d4b48ab6124cc3a",
+      "bytes": 21
+    },
+    "data/synthetic/standard_input/targets.csv": {
+      "sha256": "86484ae036521cbe1f1e41f97ddaaaa531913b1a3da073bb041fd86dc625b34c",
+      "bytes": 72
+    },
+    "data/synthetic/standard_input/windows.csv": {
+      "sha256": "76839db470e4630c9c2f08cd2bb76fbe358112472841ee695c33ba8b8e9fc019",
+      "bytes": 250
+    },
+    "data/geometry/model.json": {
+      "sha256": "938460b62b0de43d21befa624b4354fa7b4e3addc87e092d813f36aa8923a9e0",
+      "bytes": 74083
+    },
+    "data/geometry/sample.csv": {
+      "sha256": "33c08c8ba07b686d07107e1806f2541743c9cd5bf748e25b1fc34b896164ed56",
+      "bytes": 36194
+    },
+    "data/geometry/selected_tle.json": {
+      "sha256": "2550c4392df8c79051ee2210d7fad245ba4b6e6ba595bf2eb48166bc6d43112b",
+      "bytes": 68309
+    },
+    "data/geometry/stations.csv": {
+      "sha256": "7e58abb7b90163590cce850add85f247c033b19f21c71b877dd5e476dc36d389",
+      "bytes": 528
+    }
+  }
+}

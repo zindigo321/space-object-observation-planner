@@ -1,0 +1,2 @@
+-r ../famou/requirements-lock.txt
+psutil==7.0.0
