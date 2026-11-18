@@ -33,7 +33,8 @@ class Clock:
     def log(self,message): pass
 
 def produce(a):
-    from planner.tle_adapter import Geometry,build_windows
+    from planner.tle_adapter import build_windows
+    from axis_cache import CachedGeometry
     from planner.scheduler import make_candidates
     spec=read(a.spec); inventory=Path(a.inventory); out=Path(a.out); out.mkdir(parents=True,exist_ok=False)
     all_records=read(inventory/'parsed/selected_tle.json'); numbers=[n for group in spec['selected'].values() for n in group]
@@ -52,7 +53,7 @@ def produce(a):
         chunking='one target, all 10 stations, entire horizon; no temporal chunk and no per-day solve',
         candidate_rule='inherited make_candidates, global sequential IDs restored after target partition',started_utc=utc())
     write(out/'meta.json',meta); tmp=out/'scratch';tmp.mkdir(); clock=Clock(a.seconds-2)
-    geo=Geometry(records,stations,day,clock)
+    geo=CachedGeometry(records,stations,day,clock,config['horizon_seconds'],config['coarse_step_seconds'])
     wc=cc=rawc=errors=0; executable=set(); start=time.perf_counter(); geometry_s=candidate_s=0
     for index,r in enumerate(records):
         t=time.perf_counter(); batch=build_windows(geo,[r],stations,config,tmp,clock); geometry_s+=time.perf_counter()-t
