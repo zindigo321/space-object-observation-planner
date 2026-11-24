@@ -1,25 +1,25 @@
-# H180 无故障观测重规划任务
+# H180 No-Fault Observation Replanning Task
 
-本页描述随 S02 继续提供的 H180 接口和历史候选脚本模式。S02 产品命令与冻结输入契约见[正式产品运行手册](RUNBOOK.md)。H180 可使用百度伐谋公有云对话上传模式。以下是本项目文件与命令契约，不宣称是百度 SDK 的 evaluate 回调签名。企业混合云不在本次提交路径中。
+This page describes the H180 interface and historical candidate-script mode shipped alongside S02. See the [release runbook](RUNBOOK.md) for S02 product commands and the frozen input contract. H180 can use Baidu FAMOU's public-cloud chat upload mode. This document specifies the project's files and commands. The Baidu SDK's `evaluate` callback has its own contract. Enterprise hybrid cloud is outside this submission's scope.
 
-真实冻结测试包含 180 目标、10 站、6,709 个可见窗口及 116,223 个离散候选。H180_BASE 与 H180_IMP 使用相同候选和模型，但初始计划不同；必须分别在同一起点比较。时域为 2026-08-05 UTC 的 24 小时，决策时刻固定为 t=3600 秒。合成输入是独立冒烟案例，决策时刻 120 秒，不能替代 H180。
+The real frozen test contains 180 targets, 10 stations, 6,709 visibility windows, and 116,223 discrete candidates. H180_BASE and H180_IMP use the same candidates and model and start from different initial plans. Compare methods within each starting point. The horizon covers 24 hours on 2026-08-05 UTC, with a fixed decision time of `t = 3600` seconds. The synthetic input is a separate smoke case with a 120-second decision time. Use the frozen H180 inputs for H180 acceptance.
 
-目标 J=(整数主分, 覆盖目标数)，按字典序最大化。高/中/低优先级权重分别为 5/3/2；120 秒任务的整数主分为权重乘 3，240 秒为权重乘 5；任务分=整数主分/5。评分从权威目标表和真实任务时长重算，并核对 CSV 中分数一致性。候选自报分不是评分依据。
+Maximize `J = (integer primary score, number of covered targets)` lexicographically. High, medium, and low priorities have weights of 5, 3, and 2. Multiply the weight by 3 for a 120-second task and by 5 for a 240-second task. The task score equals the integer primary score divided by 5. The evaluator recomputes scores from the authoritative target table and actual task durations, then checks consistency with the CSV. Candidate-reported scores have no authority.
 
-硬约束：每目标最多一个任务；站点任务互不重叠并留出 30 秒切换；任务必须完全落在对应窗口内，且所有未来任务须精确属于冻结候选池；时长只能是 120 或 240 秒。已完成(end<=t)及锁定(start<t<end)任务的所有字段和行身份必须保留。未来任务 start>=t。UTC、秒字段、目标优先级、站号、窗口、候选编号必须一致。
+Each target may have at most one task. Tasks at the same station must avoid overlap and allow 30 seconds for a changeover. Each task must fit within its window and last exactly 120 or 240 seconds. Every future task must belong exactly to the frozen candidate pool. Preserve all fields and row identities for completed tasks (`end <= t`) and locked tasks (`start < t < end`). Future tasks require `start >= t`. UTC values, second fields, target priority, station ID, window, and candidate ID must agree.
 
-合法候选只有在 J 严格提升时才替代原计划；相同 J 或更低 J 保留原计划，完全相同元组时保留原始行序及字段。非法候选必须失败，不能靠回退原方案掩盖。覆盖数只在主分相同时决胜。不预设 improved 必须增分。
+A legal proposal replaces the original plan only if it strictly improves `J`. An equal or lower `J` retains the original plan. An exact tuple tie also preserves the original row order and fields. Reject invalid proposals even when a fallback plan exists. Coverage breaks ties in the primary score. The improved method has no guaranteed gain.
 
-唯一允许优化的文件是从 famou/initial_candidate.py 复制出的候选脚本。禁止修改 planner/、scripts/、data/、configs/、FIXED_MANIFEST.json 和外部期望源哈希；这些由评价侧核对。不得改候选池、模型、硬约束、评分或延长正式实验预算。修改候选算法后的成绩是新算法结果，历史四组成绩只认证原产品对象。
+The only file available for optimization is the candidate script copied from `famou/initial_candidate.py`. The evaluator verifies `planner/`, `scripts/`, `data/`, `configs/`, `FIXED_MANIFEST.json`, and the externally expected source hash. Keep those fixed along with the candidate pool, model, constraints, scoring, and formal experiment budgets. A change to the candidate algorithm produces a new result. The four historical results certify the original release only.
 
-候选接口为 `solve(problem) -> list[dict]`。可信准备阶段提供 JSON 兼容的 `future`、`fixed`、`retained` 完整任务行、`fields`、`decision_s` 与 `source_sha256`。候选返回完整提案任务行；由可信写出阶段写 CSV，再独立评价。候选的导入、输入解码、求解与结果序列化全部计入父进程强制的 30 秒上限，任何可编辑代码不能在准备或写出阶段执行。
+The candidate interface is `solve(problem) -> list[dict]`. Trusted preparation supplies full JSON-compatible `future`, `fixed`, and `retained` task rows and the `fields`, `decision_s`, and `source_sha256` values. The candidate returns complete proposal rows. A trusted stage writes them to CSV before independent evaluation. Candidate import, input decoding, solving, and result serialization all count against the parent's enforced 30-second limit. Keep editable code out of the preparation and write-out stages.
 
 `python scripts/famou_candidate_runner.py --case H180_IMP --script candidate.py --out ../runs/candidate_imp_001 --timeout 180`
 
-返回行必须沿用对应 data/*/initial_plan.csv 的实际字段。H180 使用 satnum 标识目标，合成案例使用 target_id（写出器映射 satnum）；不得跨案例替换字段。历史状态按决策时刻更新为 completed/locked，未来为 new_success。不能仅给摘要或评分。
+Returned rows must use the actual fields of the corresponding `data/*/initial_plan.csv`. H180 uses `satnum` as the target identifier. The synthetic case uses `target_id`, which the writer maps to `satnum`. Preserve the field names for each case. Update history statuses at the decision time to `completed` or `locked` and use `new_success` for future tasks. Provide full task rows.
 
-固定预算为准备 40 秒、求解 30 秒、写出 20 秒、评价 80 秒；各阶段还受同一总截止 180 秒约束。`--timeout` 只能收紧总预算。退出 3 表示超时/预算不足，失败候选不会进入成功评价。计时、实际 argv、执行副本启动前/结束后 SHA256、原稿是否并发变化及进程树清零证据记录在 candidate_execution.json。直接运行候选函数不构成有效受控测试。
+The fixed stage budgets are 40 seconds for preparation, 30 for solving, 20 for writing, and 80 for evaluation. All stages also share an overall 180-second deadline. `--timeout` can only reduce the overall budget. Exit code 3 indicates a timeout or insufficient budget. A failed candidate cannot enter successful evaluation. `candidate_execution.json` records timing, the actual argv, the executed copy's SHA-256 before launch and after exit, whether the original script changed concurrently, and process-tree cleanup evidence. Calling the candidate function directly does not qualify as a guarded test.
 
-固定评价器 scripts/famou_evaluator.py 在另一个进程重开权威输入，校验原始提案、严格选择及最终计划；scripts/team3_run.py recheck 只读复查原产品运行。
+The fixed evaluator `scripts/famou_evaluator.py` reopens the authoritative inputs in a separate process and validates the raw proposal, strict selection, and final plan. `scripts/team3_run.py recheck` performs a read-only recheck of the original product run.
 
-候选执行器提供进程树超时终止和运行前后固定文件哈希检查。它不宣称提供同账户恶意代码的操作系统隔离；在伐谋任务设置中必须将固定评价器及输入划为不可优化、只读资产。平台若不能提供该隔离，应只接受 CSV 提案并在可信评价侧执行评价，不能让候选重写评价逻辑。本机受控 Windows 宿主只属于正式实验审计，不是公有云运行依赖。
+The candidate runner enforces process-tree timeouts and checks fixed-file hashes before and after execution. Operating-system isolation from arbitrary code under the same account requires a separate mechanism. Configure the fixed evaluator and inputs as read-only FAMOU assets excluded from optimization. If the platform cannot provide that isolation, accept CSV proposals only and run evaluation in a trusted environment where the candidate cannot change it. The guarded local Windows host applies to the formal experiment audit. Public-cloud execution does not depend on it.

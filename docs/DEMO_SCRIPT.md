@@ -1,15 +1,15 @@
-# 约80秒中文演示讲稿
+# 80-Second Demo Script
 
-准备：打开本轮 `demo_delivery/index.html`，选E3、seed17、基线、初始计划，保持全时域视图。
+Preparation. Open this round's `demo_delivery/index.html`, select E3, seed17, baseline, and the initial plan, and keep the full-horizon view.
 
-**0—15秒**：这是团队2的自主观测规划演示，使用真实轨道数据，展示已经计算并校验过的结果。每个样本有60个目标、三个站点，规划一天。页面里的任务分采用冒烟规则，完整光学条件尚未验证。
+**0–15 seconds.** This is Team 2's autonomous observation planning demo. It uses real orbit data to show results that were already computed and validated. Each sample has 60 targets, three stations, and a one-day planning horizon. The page uses the smoke-test scoring rules. Full optical conditions remain unverified.
 
-**15—30秒**：现在是seed17的基线初始计划，180分、覆盖57个目标。切到已有改进方法，得分190，覆盖不变，独立逐秒校验零违例。三个冻结种子的初始收益分别是10.8、10和10.8分；它们使用相同候选和同一物理故障，没有按方法选不同事件。
+**15–30 seconds.** This is the seed17 baseline initial plan, with 180 points and 57 covered targets. Switch to the existing improved method to see 190 points with the same coverage and zero violations in the independent per-second check. Initial-plan gains for the three frozen seeds were 10.8, 10, and 10.8 points. Both methods used the same candidates and physical fault event.
 
-操作：选择改进，再选择E4较晚故障、基线、故障影响，点击“查看故障附近”。
+Select the improved method. Then select the E4 late fault, baseline, and the fault impact view, and use the control that jumps to the time near the fault.
 
-**30—55秒**：较晚故障只针对seed42，站点2在01:03:03失效两小时。基线已有14项完成、1项健康站执行中任务锁定、1项被中断，还有2项未来任务受影响。青色是完成历史，紫色是锁定，橙色中断零分。灰色和红色仍是旧计划的未来安排，不能当作已经执行。
+**30–55 seconds.** The late fault applies only to seed42. Station 2 fails for two hours starting at 01:03:03. The baseline already has 14 completed tasks. One in-progress task at a healthy station is locked, one task is interrupted, and two future tasks are affected. Cyan marks completed history, purple marks locked tasks, and orange marks the interrupted task, which scores zero. Gray and red show future tasks from the old plan.
 
-操作：点一条任务看详情，再点“下一步”，切到改进。
+Click a task to see its details, step forward once, and switch to the improved method.
 
-**55—80秒**：重规划完整保留历史并避开故障。基线172.4分，改进184分，覆盖均为56个目标，零违例。改进初始计划不同，因此这里比较整套流程，不单独宣称重规划器更优。删除历史和伪造中断等攻击已被独立校验拒绝。所有指标来自本轮证据，页面支持断网播放、暂停和分步查看。
+**55–80 seconds.** Replanning preserves all history and avoids the fault. The baseline scores 172.4 and the improved method scores 184. Both cover 56 targets with zero violations. The improved method starts from a different initial plan, so the comparison applies to the complete workflows. The independent validator rejected deleted history and forged interruptions. The metrics come from this round's evidence, and the page supports offline playback, pause, and stepping.

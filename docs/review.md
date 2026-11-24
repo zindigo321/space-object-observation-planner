@@ -1,70 +1,70 @@
-# 交付自检（2026-10-23）
+# Delivery Self-Review (2026-10-23)
 
-按 code-review 技能执行静态检查和实际运行验证；不是第三方审计认证。
+This self-review used the code-review skill for static inspection and runtime verification. The scope was internal review.
 
-## 静态检查
+## Static Inspection
 
-| 维度 | 结果及证据 |
+| Dimension | Findings and evidence |
 | --- | --- |
-| 输入与安全 | 原 ZIP 安全提取，未发现越界/链接；CSV/JSON/UTC/ID 严格检查，无动态执行输入、无凭据；暂存排除真实数据 |
-| 兼容性 | 保留原候选、排程与旧任务 CSV，E0 四任务表及候选表字节一致；新标准任务表另行输出 |
-| 错误处理 | FAIL/2 与 BLOCKED/3 明确；已有目录拒绝；非法 YAML、缺输入、故障字段和缓存损坏都有测试 |
-| 资源清理 | Windows Job Object 将子进程挂入后再恢复执行；finally 关闭 Job；短测试证明子孙进程被终止 |
-| 独立评价 | validator 无 scheduler 依赖；评分从原始优先级/时长重算；故障历史集合独立推导且精确比较 |
-| 修改范围 | 继承旧解析/几何/候选/排程；只新增交接、参数、缓存、证据隔离和测试，没有引入云端或复杂模型 |
-| 类型与边界 | 整数秒、正 ID、非布尔精度、起止和边界检查；实际非默认站点/时域/不等抽样数通过 |
+| Inputs and security | The original ZIP was safely extracted. No path escapes or links were found. CSV, JSON, UTC, and IDs were strictly validated. Input was never executed as code, and no credentials or real data were staged. |
+| Compatibility | Original candidates, schedules, and legacy task CSVs were preserved. E0's four task tables and candidate table were byte-identical. New standardized task tables are written separately. |
+| Error handling | FAIL/2 and BLOCKED/3 have defined outcomes. Existing output directories are rejected. Tests cover invalid YAML, missing inputs, fault fields, and corrupt caches. |
+| Resource cleanup | The Windows Job Object receives the child process before execution resumes. A `finally` block closes the job. A short test showed that descendant processes were terminated. |
+| Independent evaluation | The validator has no scheduler dependency. It rescores from original priorities and durations, independently derives the fault history sets, and compares them exactly. |
+| Change scope | The original parsing, geometry, candidates, and scheduling were retained. Changes were limited to handoff, parameters, caching, evidence isolation, and tests. Cloud execution and complex models were outside scope. |
+| Types and boundaries | Checks cover integer seconds, positive IDs, non-boolean precision, and start, end, and boundary values. An actual run with non-default stations and horizon and unequal sample counts passed. |
 
-审查中修正了内部 worker 参数可能绕过已有输出目录检查的问题，增加父进程及新目录状态核验并回归；未保留已发现的阻塞问题。
+The review found that internal worker arguments might bypass the existing output directory check. The fix verified the parent process and the new directory's state, then passed regression tests. All identified blockers were resolved.
 
-## 实际验证
+## Runtime Verification
 
-- 43 项 pytest 通过，最终 JUnit 为 `outputs/pytest_delivery.xml`；compileall 通过。
-- E0/E2 真实运行、标准窗口适配、外部重规划评价、非默认参数及缓存复用均已执行，结果见 EXPERIMENTS.md。
-- 审计给出的真实历史倒填反例四种状态均 FAIL，原合法控制结果不变。
-- 源证据全部哈希保持一致；原参考工程 114 文件与内层 ZIP 相同。
-- 旧额外复评仍 BLOCKED，未把该入口写成 PASS。
+- All 43 pytest tests passed. The final JUnit report is `outputs/pytest_delivery.xml`. `compileall` passed.
+- E0/E2 real runs, standard window adaptation, external replanning evaluation, non-default parameters, and cache reuse were exercised. See `EXPERIMENTS.md` for results.
+- The real historical backdating counterexamples supplied by the review failed in all four statuses. The original valid control was unchanged.
+- All source evidence retained its hashes. The original reference project's 114 files matched the inner ZIP.
+- The earlier optional reevaluation remained BLOCKED.
 
-## 非阻塞维护项与验证范围
+## Nonblocking Maintenance and Verification Scope
 
-为减少继承改动，拆出的模块仍沿用部分紧凑写法和 common 通配导入，可在后续维护中逐步收窄。Windows 分支已实际测试；POSIX 进程组实现未在本轮操作系统上运行，不声称跨平台认证。未重新构建全新依赖环境；验证的是既有 bd-fmb 环境。无最优性或完整光学验证声明。
+To minimize changes to inherited code, some extracted modules still use compact expressions and wildcard imports from `common`. Maintenance can narrow those incrementally. The Windows branch was exercised. The POSIX process-group implementation was outside the OS tested in this round, so verification applies to Windows. The tests used the existing bd-fmb dependency environment. A fresh install, optimality, and full optical validation were outside scope.
 
-## E3/E4与Demo轮追加自检
+## Additional Self-Review for E3/E4 and the Demo
 
-仍按code-review技能检查，原43测试保留，新增22项后65项通过。固定事件参数与外部评价参数分开；冻结来源封存哈希、原始输入和候选全集一致性均检查；事件来源的影响列表不冒充当前方法统计。原scheduler、validator和tle_adapter未修改；初始计划单独冻结，历史反例仍由独立校验器拒绝。默认入口五表与基线逐字节一致，新目录复现相同。
+This round also used the code-review skill. The original 43 tests were retained, and 65 passed after adding 22. Fixed event parameters and external evaluation parameters have separate roles. The checks verify frozen source seals, raw inputs, and the complete candidate set. The source event's impact list serves as provenance, and each method's statistics use its own impacts. The existing scheduler, validator, and TLE adapter were retained. The initial plan is frozen separately, and the independent validator still rejects history counterexamples. The five default entry-point tables were byte-identical to the baseline. Reproduction in a new directory matched the same outputs.
 
-Demo使用本地模板及封存产物，嵌入JSON转义HTML分隔符，任务详情使用textContent；无外部脚本、动态代码执行或凭据。数据分、覆盖分母与检查报告不一致时FAIL，缺证据BLOCKED，不能只生成HTML就宣称交互通过。实际Chrome离线文件页面通过33项交互检查，三截图已查看。自动化专用Chrome无沙箱模式仅加载本机生成的页面，并受Windows进程树预算约束。
+The demo uses a local template and sealed artifacts. It escapes HTML delimiters in embedded JSON and renders task details with `textContent`. It uses no external scripts, dynamic execution, or credentials. A mismatch in scores, coverage denominators, or validation reports produces FAIL, and missing evidence produces BLOCKED. Interaction verification requires running the browser checks. Chrome passed all 33 offline interaction checks against the local file, and three screenshots were reviewed. The browser's test-only no-sandbox mode loads only the locally generated page under a Windows process-tree budget.
 
-预算台账串行，命令上限取300秒、请求值和剩余预算最小值；失败、超时和未完成记录有区分。实际147.226秒/600秒，保留6条失败及后续修复验证。只读复查56文件前后哈希相同，原始输入/三个旧源目录未变。新目录复现未重装环境；1号/3号外部确认、旧可选复评分别保持PENDING_EXTERNAL/BLOCKED。详细失败原因、证据和范围见 [交接说明](IMPROVEMENT_DEMO_HANDOFF.md)。
+The ledger is serial. The per-command cap is the minimum of 300 seconds, the requested cap, and the remaining budget. It records failures, timeouts, and incomplete runs distinctly. Actual compute time was 147.226 seconds of 600 seconds. The six failed runs and verification after their fixes were retained. The read-only recheck preserved the hashes of all 56 files. Raw inputs and the three old source directories were unchanged. The new-directory reproduction used the existing environment. External confirmation from members 1 and 3 remained PENDING_EXTERNAL, and the earlier optional reevaluation remained BLOCKED. See the [handoff document](IMPROVEMENT_DEMO_HANDOFF.md) for detailed causes, evidence, and scope.
 
-## P1/E5轮追加自检（2026-10-23）
+## Additional Self-Review for P1/E5 (2026-10-23)
 
-按code-review技能检查安全性、兼容性、错误处理、资源、修改范围及边界，并实际执行。P1不是仅依赖下层CLI拒绝：主入口、直接prepare、汇总和预算写入都在首次写入前检查真实路径。完整树快照包含空目录及链接身份，Windows目录联接、硬链接和相邻前缀路径已测试；无真实源反例污染。没有增加大型路径框架或改调度器。
+The code-review skill was used to inspect security, compatibility, error handling, resources, change scope, and boundaries, followed by runtime verification. P1 checks resolved paths before the first write at the main entry point, direct preparation, aggregation, and budget writes. Full tree snapshots include empty directories and link identity. Windows junctions, hard links, and paths sharing a neighboring prefix were tested, with real sources protected during counterexample tests. The scheduler stayed outside the fix, and the path changes used the existing project structure.
 
-E5没有为各方法重新构造初始计划；共同原始JSON与CSV交叉核对，来源/事件/候选/历史的有序语义哈希绑定，两方法独立副本且调用前后校验。独立校验从另存原计划推导历史，并实际读取原始TLE、优先级和站址。方法计时仅schedule，包含改进内部回退。条件上界不重复计固定目标，中断目标仍可进入未来候选。专用复查解释了E5与旧四计划格式的差异。
+E5 uses one shared initial plan for both methods. The original JSON was cross-checked against the CSV. Ordered semantic hashes bind the source, event, candidates, and history. Each method uses an independent copy checked before and after the call. The independent validator derives history from the separately saved original plan and reads the original TLE, priorities, and station locations. Method timing measures `schedule` and includes the improved method's internal fallback. The conditional upper bound counts fixed targets once. Interrupted targets can still enter the future candidate set. The dedicated recheck accounts for the difference between E5 and the original four-plan format.
 
-94测试通过，E3/E4字节回归、E5真实历史攻击、完整树只读复查及新Demo浏览器验证均有本轮证据。目录检查未声称抵抗恶意并发替换链接；单次耗时不作统计结论，原生Windows环境已验证，未做干净安装或跨平台认证。源码提交不含真实产物、原环境清单或凭据，原忽略规则保持。分项验收和外部待办见PATH_SAFETY_E5_HANDOFF.md。
+All 94 tests passed. This round records evidence for E3/E4 byte regressions, real-case E5 history attacks, read-only rechecks of complete trees, and browser validation of the new demo. Directory checks were scoped to serial execution, with malicious concurrent link replacement outside verification. Timings came from single runs, with no statistical conclusions. Verification covered native Windows and the existing environment. The commit excluded real artifacts, the original environment snapshot, and credentials, and existing ignore rules were used. See `PATH_SAFETY_E5_HANDOFF.md` for per-item acceptance and external follow-up.
 
-## 原子写入修复轮追加自检（2026-10-23）
+## Additional Self-Review for the Atomic Write Fix (2026-10-23)
 
-按code-review技能逐文件静态审查并实际运行。生产改动限定planner/atomic_io.py、planner/common.py、scripts/budget_run.py、scripts/run_improvement.py；新增tests/test_atomic_io.py和交付文档。无调度、候选、独立校验、路径预检、进程树保护或界面改动。
+This round used the code-review skill for file-by-file static inspection and runtime verification. Production changes were limited to `planner/atomic_io.py`, `planner/common.py`, `scripts/budget_run.py`, and `scripts/run_improvement.py`. The round added `tests/test_atomic_io.py` and handoff documentation. Scheduling, candidates, independent validation, path preflight, process-tree protection, and the interface were outside scope.
 
-| 维度 | 本轮审查与证据 |
+| Dimension | Review and evidence for this round |
 | --- | --- |
-| 安全性 | mkstemp独占创建，写返回的fd，不打开旧固定.tmp；只有拥有的临时路径参与清理。目录级硬链接通过真实预算/完整CLI复现前后对照，旧alias及输入保持 |
-| 兼容性 | JSON UTF-8/indent/键序/非有限规则与CSV列/换行保持；新目标及合法更新通过；真实E5两CSV、E3/E4二十CSV逐字节一致 |
-| 错误处理 | 序列化、fdopen、部分写入、replace失败保留目标，清理失败附原异常note并继续抛出；预算最终保存失败保留RUNNING而拒绝继续，不虚报完成 |
-| 资源管理 | Windows上替换前明确关闭描述符；失败后fstat确认已关闭，自己的临时文件消失；真实进程树超时原测试及新增预算timeout均执行 |
-| 范围/规范 | 小型标准库helper，无新依赖和泛化安全框架；新目录的普通新文件写入保留，完整清单在本轮write_inventory.md |
-| 类型/边界 | Path对象及既有API签名保持；CSV流式输入失败、JSON nan/inf/不可序列化、普通旧临时文件和既有目标链接均有测试 |
+| Security | `mkstemp` exclusively creates the file and writes use its returned file descriptor. The old fixed `.tmp` path is never opened. Cleanup only touches the temporary path owned by the invocation. Directory-level hard-link cases were run through the actual budget and full CLI entry points before and after the fix, verifying preservation of the old alias and input after the fix. |
+| Compatibility | JSON UTF-8 encoding, indentation, key order, and nonfinite value handling and CSV column order and newlines were preserved. New targets and valid updates passed. The two real E5 CSVs and twenty E3/E4 CSVs were byte-identical. |
+| Error handling | Serialization, `fdopen`, partial write, and `replace` failures preserve the target. Cleanup failures are noted on the original exception, which is reraised. A failure to save final budget state leaves RUNNING and prevents continued execution. |
+| Resource management | The file descriptor is closed before replacement on Windows. After failures, `fstat` confirmed it was closed and the invocation's temporary file was gone. Both existing real process-tree timeout tests and new budget timeout tests ran. |
+| Scope and conventions | The helper is small and uses the standard library, with no new dependencies or generalized security framework. Normal new-file writes in new directories were retained. See this round's `write_inventory.md` for the full list. |
+| Types and boundaries | `Path` objects and existing API signatures were retained. Tests cover CSV streaming failure, JSON nan, inf, and nonserializable values, ordinary old temporary files, and existing target links. |
 
-运行：117 passed（原94+23），0失败/错误/跳过，包括实际Windows junction；E5共同条件14/1/1/2、6839未来候选、172.4/182.0分与历史一致，原始TLE零违例。专用只读复核33文件/3目录不变，所有旧保护根完整树/哈希不变。新Demo33浏览器检查和三截图已检查；封存清单无本次临时文件，源码编译通过。分项证据在outputs/atomic_write_fix_20261023_182047/acceptance.json。
+117 tests passed, comprising 94 existing and 23 new tests, with 0 failures, 0 errors, and 0 skips, including actual Windows junction tests. E5's shared conditions of 14/1/1/2, 6839 future candidates, and 172.4/182.0 points matched the historical results, with zero original-TLE violations. The dedicated read-only recheck preserved all 33 files and 3 directories, and all older protected trees and their hashes matched. The new demo passed 33 browser checks, and three screenshots were reviewed. Seal manifests contained no temporary files from this round, and the source compiled. See `outputs/atomic_write_fix_20261023_182047/acceptance.json` for per-item evidence.
 
-唯一预算15条命令81.018276秒；外层均按预期通过，反例内部2及测试故意失败如实保留。未发现未解决的本轮阻塞缺陷；既有紧凑写法维护项保留。本轮仅覆盖串行Windows工程场景，不宣称抗恶意并发目录替换、断电持久性或POSIX实测；不把已有E5收益归因I/O修复。没有环境重装、完整光学、正式评分或队友确认；旧额外复评继续BLOCKED。
+The single budget recorded 15 commands totaling 81.018276 seconds. Outer commands passed as expected. Counterexample exit code 2 and intentional test failures were retained. No unresolved blockers were identified in this round. The existing compact-code maintenance item remains. Verification covered serial Windows project scenarios. Malicious concurrent directory replacement, durability across power loss, and POSIX execution were outside scope. The existing E5 gain comes from the algorithm. Environment reinstallation, full optical validation, formal scoring, and teammate confirmation were outside scope. The earlier optional reevaluation remains BLOCKED.
 
-## 稳定交接与试读入口：提交前审查（2026-10-23）
+## Stable Handoff and Read-Only Intake Review Before Commit (2026-10-23)
 
-继续使用code-review技能。新增三个轻量脚本和合成边界测试；未改planner、smoke_test.py、原117项测试及依赖/忽略规则。路径预检先于mkdir，子进程受原process_guard约束，0/2/3继续传递；未知输入不清洗、不改写。试读复用load_tables/normalize，先全表再显式选择切片，失败报告标明首次错误/未完成范围。规划工作流失败即停止后续评价/复查，父子输出分离。
+This round continued to use the code-review skill. It added three lightweight scripts and synthetic boundary tests. The planner, `smoke_test.py`, the original 117 tests, dependencies, and ignore rules were outside the change. Path preflight precedes `mkdir`. Subprocesses use the existing `process_guard` and propagate exit codes 0, 2, and 3. Unknown input is read as supplied. Read-only intake reuses `load_tables` and `normalize`, then explicitly selects a slice after reading the full tables. Failure reports identify the first error and the unfinished scope. A failed planning workflow stops before evaluation or recheck, with parent and child outputs in separate locations.
 
-源码包只读指定提交的Git对象，受控白名单外文件拒绝；zip清单与内容哈希核对，拒绝重复成员、越界名和符号链接，解压目录全新。真实参考数据仅进本地另一包，Git暂存只含源码、测试、文档、合成模板。依赖版本来自已有环境，不伪称干净安装。清单自身排除，归档外置SHA避免循环。
+The source kit reads Git objects from the specified commit and rejects files outside the controlled allowlist. ZIP contents are checked against the manifest and their hashes. Duplicate members, out-of-bounds names, and symbolic links are rejected, and extraction uses a new directory. Real reference data is restricted to a separate local kit. Git staging contains only source, tests, documentation, and synthetic templates. Dependency versions come from the existing environment. The manifest excludes itself, and the external archive SHA avoids a circular hash.
 
-已运行本机合成规划/初始及故障评价/复查、合成/官方参考只读试读，均按预期通过。最终代码提交后的归档、解压导入来源、真实窗口工作流、完整pytest和真实Demo浏览器验证须由包外acceptance.json、portable_validation.json、pytest.xml及browser_from_kit报告闭环；未运行结果不提前认证。严格区分历史TLE证据、本轮窗口接入与待外部确认。
+Local synthetic planning, initial and fault evaluation, rechecks, and read-only intake of the synthetic and official reference inputs were run and passed as expected. Final source-commit archive export, import provenance from extraction, the real-window workflow, full pytest, and the real demo browser results require the external `acceptance.json`, `portable_validation.json`, `pytest.xml`, and `browser_from_kit` reports. Certification requires the corresponding checks to run. Historical TLE evidence, this round's window integration, and pending external confirmation each have their own verification scope.

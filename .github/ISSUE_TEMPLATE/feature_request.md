@@ -1,14 +1,14 @@
 ---
-name: 改进建议
-about: 提出功能、文档或协作流程方面的改进
+name: Feature request
+about: Suggest an improvement to functionality, documentation, or collaboration
 ---
 
-## 使用场景
+## Use Case
 
-<!-- 描述当前步骤以及遇到的困难。 -->
+<!-- Describe your current workflow and the difficulty you encounter. -->
 
-## 建议的改进
+## Proposed Improvement
 
-<!-- 描述希望支持的行为，以及如何判断改进已经满足需求。 -->
+<!-- Describe the behavior you need and how you would know it meets your needs. -->
 
-<!-- 如需举例，请使用可公开的合成数据。 -->
+<!-- Use publicly shareable synthetic data for any examples. -->

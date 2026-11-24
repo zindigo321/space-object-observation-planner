@@ -1,93 +1,93 @@
-# P1目录保护修复与E5同初始计划重规划交接
+# P1 Directory Protection Fix and E5 Shared Initial Plan Replanning Handoff
 
-执行日期：2026-10-23，Asia/Shanghai。起点 `97d41e6`，分支 `work/path-safety-replan-e5`。P1独立提交 `341ac9e`；E5、测试和本说明在后续提交。没有修改main、原算法、独立校验器或真实旧数据。
+Run date: 2026-10-23, Asia/Shanghai. This round started at `97d41e6` on `work/path-safety-replan-e5`. The separate P1 commit was `341ac9e`. E5, its tests, and this document were included in subsequent commits. The scope excluded `main`, the original algorithm, the independent validator, and the existing real data.
 
-本轮根目录 R：`G:\bd-fmb\outputs\path_safety_e5_20261023_164001`。旧交付 OLD：`G:\bd-fmb\outputs\improvement_demo_20261023_150452`。真实产物全部留在忽略目录，仓库只提交源码、合成测试与说明。
+This round's root, R, was `G:\bd-fmb\outputs\path_safety_e5_20261023_164001`. The earlier delivery, OLD, was `G:\bd-fmb\outputs\improvement_demo_20261023_150452`. Real artifacts are stored in ignored directories. The repository contains source code, synthetic tests, and documentation.
 
-## P1：先复现，再验证修复
+## P1 Reproduction and Fix Verification
 
-修复前实际将 `outputs/E0_seed42` 复制到 `R\before_fix\sealed_source_copy`，对副本调用旧总入口并指定其内部 `nested_output`。原CLI返回2，但新增了输出目录、snapshots空目录/事件文件、`frozen_inputs.json`。证据为 `R\before_fix\reproduction.json`，含完整前后树、命令、退出码及旧代码哈希；旧脚本、stderr/stdout与夹具内部台账保留。没有对真实封存源做破坏性反例。
+Before the fix, `outputs/E0_seed42` was copied to `R\before_fix\sealed_source_copy`. The old main entry point was run on that copy with `nested_output` inside it as the destination. The original CLI returned 2, but it had created the output directory, an empty snapshots directory and an event file, and `frozen_inputs.json`. The evidence in `R\before_fix\reproduction.json` includes full before-and-after trees, the command, its exit code, and the old code hash. The old scripts, stderr and stdout, and the internal fixture ledger were retained. The original sealed source was excluded from the destructive test.
 
-修复在 `planner/path_safety.py`、`scripts/run_improvement.py`、`scripts/budget_run.py`：
+The fix is in `planner/path_safety.py`, `scripts/run_improvement.py`, and `scripts/budget_run.py`.
 
-- 使用实际解析后的Path、路径祖先关系和存在文件的samefile身份检查，覆盖相对路径、`..`、Windows大小写、目录联接及文件别名，不用字符串前缀判定。
-- 总入口在创建任何目录/台账/日志前，读取所有seed的源、当前及来源配置，收集原始输入、冻结样本、配置、规格和事件文件。检查输出、缓存、台账、原子临时文件及本轮所有自动日志位置。
-- `--prepare` 自己也预检，并独占创建全新实验根目录；总入口不再提前创建根目录。台账放在实验根目录之外，通常是其父目录，原交付命令结构保持可用。
-- 汇总逐一检查实际CSV/Markdown/JSON及临时写入位置，允许父目录汇总，拒绝封存案例内部或解析到受保护输入的目标。预算入口在自己的首次mkdir之前也检查实际台账、临时文件和日志。
-- 非法路径返回FAIL/2并写stderr，不创建目录或空目录。目录联接解析和链接身份检查不构成对恶意并发替换链接的原子防护；本轮没有并发修改输入。
+- Checks use resolved `Path` objects, ancestor relationships, and `samefile` identity for existing files. This covers relative paths, `..`, Windows case differences, directory junctions, and file aliases without relying on string prefixes.
+- Before creating directories, ledgers, or logs, the main entry point reads the source, current configuration, and source configuration for every seed. It collects raw inputs, frozen samples, configurations, specifications, and event files. It checks the output, cache, ledger, atomic temporary files, and all generated log locations.
+- `--prepare` runs its own preflight and exclusively creates a new experiment root. The main entry point leaves root creation to this stage. The ledger is kept outside the experiment root, typically in its parent. Commands from the original delivery still work.
+- Aggregation checks actual CSV, Markdown, JSON, and temporary write targets individually. It allows aggregation in the parent directory and rejects destinations inside a sealed case or resolving to a protected input. The budget entry point also checks the actual ledger, temporary files, and logs before its first `mkdir`.
+- Invalid paths return FAIL/2 and write to stderr before any directory creation, including empty directories. Resolving junctions and checking file identities provides a preflight check. Atomic protection against malicious concurrent link replacement was outside scope, and input files were not changed concurrently in this round.
 
-修复后对新的完整源副本重做同一攻击，CLI仍返回2，但整个夹具树及文件哈希完全不变，连台账/输出根也未创建。证据：`R\path_fix_verification.json`。14项新增路径测试包含第一/第二/第三源、相等/内部/`..`/大小写、原始输入、非法台账、自动日志和原子临时文件硬链接、直接prepare、封存位置汇总、相邻前缀合法输出、真实Windows目录联接。全部实际通过，没有跳过联接测试。最后还单独验证了E5验收汇总器拒绝封存位置，证据 `R\final_code_checks.json`。
+After the fix, the same attack was repeated on a new complete copy of the source. The CLI again returned 2. The entire fixture tree and its file hashes were unchanged, and neither the ledger nor the output root was created. See `R\path_fix_verification.json`. The 14 new path tests covered the first, second, and third sources, equal and nested paths, `..`, case differences, raw inputs, invalid ledgers, generated logs and atomic temporary file hard links, direct preparation, aggregation in sealed locations, legitimate paths with an adjacent prefix, and real Windows directory junctions. All passed, including the junction test. A final check verified separately that the E5 acceptance aggregator rejects sealed locations. See `R\final_code_checks.json`.
 
-## E5固定共同起点
+## E5 Fixed Shared Starting Point
 
-权威来源是 `OLD\experiments\E4_seed42_late\initial_frozen_baseline.json`，与同目录 `schedule_baseline.csv` 完整任务语义交叉检查，并独立重算为173.2分、56个目标。没有重新生成两种方法各自的初始计划。
+The authoritative input was `OLD\experiments\E4_seed42_late\initial_frozen_baseline.json`. It was cross-checked against the full task semantics of `schedule_baseline.csv` in the same directory and independently rescored at 173.2 points over 56 targets. Both methods started from this existing plan.
 
-使用seed42的60目标、站点1/2/3、2026-08-03全天UTC、10060个冻结候选。物理事件为站点2、`[3783,10983)`，即01:03:03—03:03:03 UTC。实际推导并冻结一次共享完成/锁定/中断历史及未来候选，再为两方法提供独立内存副本。每方法调用前后均验证内容及顺序哈希，来源不一致也拒绝。
+The case used seed 42, 60 targets, stations 1/2/3, the full UTC day on 2026-08-03, and 10060 frozen candidates. The physical event affected station 2 over `[3783,10983)`, or 01:03:03–03:03:03 UTC. The completed, locked, and interrupted history and the future candidates were derived once and frozen. Each method received its own in-memory copy. Content and order hashes were checked before and after each call. A source mismatch also caused rejection.
 
-共同输入哈希如下。语义哈希采用UTF-8、键排序、紧凑JSON，列表保留原顺序；整体条件哈希还包含来源路径，因此迁移目录可能改变来源/整体哈希，不影响单项任务语义哈希。
+The shared input hashes are listed below. Semantic hashes use UTF-8, sorted keys, and compact JSON with the original list order. The overall conditions hash also includes source paths. Moving the directory can therefore change the source and overall hashes independently of the individual task semantics hashes.
 
-| 内容 | SHA256 |
+| Content | SHA256 |
 | --- | --- |
-| 共同初始JSON原文件字节 | `1b37fab094cb6b2a9f0d99aa92d0c018d8ad02a4de14e42f1aba831b1963ec8c` |
-| 共同初始计划语义 | `c68cda7770c5baea117199b77059d1237302cf40322a13583f42a4c5ffef7037` |
-| 事件语义 | `fe2fc5e3dc76aedbc721d4f1289cd0579685ad96477260962b0ff9ba9affca2c` |
-| 完整候选语义 | `e242dddb7dc0b69892328aecf5090455e10fe73b02f2f44735a3f725fb3ee407` |
-| 未来候选语义 | `1fa13c6cff72706e706130aeb8b7cfe59eb28ca22c903b652a06471b164b5c18` |
-| 固定成功历史语义 | `5f12d96af1c7a42bccec0926d5b443cb1cdc7fcbe36c6f70efab026c4907330a` |
-| 中断历史语义 | `b8020956192d1acbaa1020146ef62d8aa29ad2822c6850dfde22e38b2d02db65` |
-| 共同条件整体 | `585404b8222cdcacc53127826603515a5a11be1ca2efc446cc975ff994db8d67` |
+| Original shared initial JSON bytes | `1b37fab094cb6b2a9f0d99aa92d0c018d8ad02a4de14e42f1aba831b1963ec8c` |
+| Shared initial plan semantics | `c68cda7770c5baea117199b77059d1237302cf40322a13583f42a4c5ffef7037` |
+| Event semantics | `fe2fc5e3dc76aedbc721d4f1289cd0579685ad96477260962b0ff9ba9affca2c` |
+| Full candidate set semantics | `e242dddb7dc0b69892328aecf5090455e10fe73b02f2f44735a3f725fb3ee407` |
+| Future candidate semantics | `1fa13c6cff72706e706130aeb8b7cfe59eb28ca22c903b652a06471b164b5c18` |
+| Fixed successful history semantics | `5f12d96af1c7a42bccec0926d5b443cb1cdc7fcbe36c6f70efab026c4907330a` |
+| Interrupted history semantics | `b8020956192d1acbaa1020146ef62d8aa29ad2822c6850dfde22e38b2d02db65` |
+| Overall shared conditions | `585404b8222cdcacc53127826603515a5a11be1ca2efc446cc975ff994db8d67` |
 
-机器证据：`R\E5_common_baseline\shared\contract.json`、`common_inputs.json`、`conditions_baseline.json`、`conditions_improved.json`。共享快照与权威源前后不变；方法不能替换共同初始计划、自报历史或悄悄换候选。
+Machine-readable evidence is in `R\E5_common_baseline\shared\contract.json`, `common_inputs.json`, `conditions_baseline.json`, and `conditions_improved.json`. The shared snapshot and authoritative source were unchanged before and after the run. The contract prevents a method from substituting another initial plan, supplying its own history, or silently replacing candidates.
 
-## E5本轮实际结果
+## E5 Results from This Round
 
-两方法共有14项完成、1项健康站锁定、1项故障站中断、2项原未来任务受影响。固定成功历史15项、51.0分；中断零分，仍参与实际占用校验，可在以后重新完整观测。
+Both methods had 14 completed tasks, 1 locked task at an operational station, 1 interrupted task at the failed station, and 2 originally scheduled future tasks affected by the fault. The fixed successful history comprised 15 tasks and 51.0 points. The interruption earned zero points. Its actual occupancy counted in validation, and that target could still be observed in full later.
 
-| 方法 | 最终总分 | 固定历史分 | 新任务分 | 覆盖/全部 | 覆盖/可执行 | 高/中/低覆盖 | 违例 | 重规划秒 | 独立验证秒 | 净调整 |
+| Method | Final score | Fixed history score | New task score | Coverage / all | Coverage / feasible | High / medium / low coverage | Violations | Replanning (s) | Independent validation (s) | Net adjustments |
 | --- | ---: | ---: | ---: | --- | --- | --- | ---: | ---: | ---: | ---: |
-| baseline | 172.4 | 51.0 | 121.4 | 56/60，93.33% | 56/56，100% | 18/18/20 | 0 | 0.003326 | 0.330910 | 5 |
-| improved | 182.0 | 51.0 | 131.0 | 56/60，93.33% | 56/56，100% | 18/18/20 | 0 | 0.083727 | 0.391897 | 23 |
+| baseline | 172.4 | 51.0 | 121.4 | 56/60, 93.33% | 56/56, 100% | 18/18/20 | 0 | 0.003326 | 0.330910 | 5 |
+| improved | 182.0 | 51.0 | 131.0 | 56/60, 93.33% | 56/56, 100% | 18/18/20 | 0 | 0.083727 | 0.391897 | 23 |
 
-同起点收益为 `(910−862)/5 = +9.6` 分。基线新增0、删除0、移动/改时长5、保留51；改进新增0、删除0、移动/改时长23、保留33。比较忽略纯状态或任务ID变化。两方法完成/锁定/中断历史均由独立校验从共同原计划推导并完整匹配。
+The gain from the shared starting point was `(910−862)/5 = +9.6` points. The baseline added 0, removed 0, moved or changed the duration of 5, and retained 51. The improved method added 0, removed 0, moved or changed the duration of 23, and retained 33. The comparison excludes changes solely to task status or ID. For both methods, independent validation derived the completed, locked, and interrupted history from the shared original plan and confirmed an exact match.
 
-条件宽松上界为182.0分＝固定历史51.0＋未固定目标的未来候选逐目标最高分131.0；固定成功目标不重复计分，中断目标可进入未来候选，忽略资源冲突。基线距上界9.6，改进距上界0。本场景结果不能宣称所有重规划场景更优或普遍最优；旧184分不是这个共同历史约束下的必达成绩。
+The relaxed conditional upper bound was 182.0 points, comprising 51.0 from fixed history and 131.0 from the highest-scoring future candidate per unfixed target. Fixed successful targets are counted once. Interrupted targets may enter the future candidate set. The bound ignores resource conflicts. The baseline was 9.6 points below the bound and the improved method reached it. This single case establishes neither universal improvement across replanning scenarios nor general optimality. The earlier 184-point result used different history constraints and is not a required outcome here.
 
-输入读取及校验器准备0.097736秒；共同初始计划独立验证0.273137秒；共享历史/未来候选准备0.002353秒；内部总耗时2.430907秒；包含进程启动的外层命令3.196393秒。源封存哈希、快照序列化等成本包含在总耗时中。方法耗时仅包含各自schedule调用；输入复制、读写、哈希和独立验证在方法计时之外。改进包含内部基线回退。以上均为单次perf_counter观测，不宣称统计显著的速度优势。
+Reading inputs and preparing the validator took 0.097736 seconds. Independent validation of the shared initial plan took 0.273137 seconds. Preparing shared history and future candidates took 0.002353 seconds. Total internal time was 2.430907 seconds and the outer command including process startup took 3.196393 seconds. Totals include source seal hashing and snapshot serialization. Method timings cover each `schedule` call. Copying inputs, reading and writing, hashing, and independent verification are outside those timings. The improved method includes its internal baseline fallback. These are single-run `perf_counter` observations and establish no statistically significant speed advantage.
 
-完整结果：`R\E5_common_baseline\comparison.csv`、`comparison.md`、`summary.json`。逐方法任务、中断表、变化明细、独立报告、配置、版本及共享初始计划均在同目录，封存清单为 `evidence_manifest.json`。
+Complete results are in `R\E5_common_baseline\comparison.csv`, `comparison.md`, and `summary.json`. The same directory contains each method's tasks, interruptions, changes, independent reports, configuration, versions, and the shared initial plan. The seal manifest is `evidence_manifest.json`.
 
-给4号可直接引用的结论：**在seed42、共同基线初始计划及同一较晚故障下，已有改进重规划得到182.0分，相比基线172.4分提升9.6分；覆盖相同、历史完整、逐秒独立校验零违例，但净调整由5增至23，单次重规划耗时也更高。**
+Member 4 can quote this conclusion directly. **With seed 42, the shared baseline initial plan, and the same later fault, the existing improved replanner scored 182.0 versus 172.4 for the baseline, a gain of 9.6 points. Coverage was identical, history was preserved, and independent per-second validation found zero violations. Net adjustments rose from 5 to 23, and this single improved run took longer to replan.**
 
-## 本轮验收与未做事项
+## Acceptance and Scope for This Round
 
-| 验收 | 实际结果与证据（相对R） |
+| Acceptance item | Observed result and evidence relative to R |
 | --- | --- |
-| 全部测试 | 94通过、无跳过，原65＋路径14＋E5条件/历史15；`pytest_e5.xml`，25.92秒 |
-| 共同条件防伪 | 初始、来源、事件、固定/中断、完整/未来候选任一不一致均拒绝；方法输入被修改也拒绝 |
-| E5独立合法性 | 两份新计划均原始TLE两端及内部每个整数秒检查；窗口、故障占用、资源、30秒切换、唯一成功、原始优先级计分及精确历史全通过 |
-| E5真实历史攻击 | `E5_history_security_final/history_security.json`；16个合法/攻击案例满足预期，另有共同来源不一致拒绝。所有攻击在完整副本及独立内存副本中进行 |
-| 真实倒填反例范围 | 倒填候选单独通过真实TLE/窗口合法性；不声称与全部计划资源隔离，且每个攻击必须实际触发历史来源违例 |
-| E5只读复核 | `E5_recheck/recheck.json`；33文件、3目录完整树前后一致，重新独立校验初始及两新计划 |
-| E3/E4回归 | 4案例16计划重新实际运行，真实TLE通过；16份旧格式任务表及4候选表字节一致；`e3_e4_regression.json` |
-| Demo新生成路径 | 从本轮新E3/E4产物重新生成`demo/index.html`，数据检查PASS，33项实际Chrome交互通过；`browser/browser_checks.json`和3张截图 |
-| 旧资料整体保护 | OLD整轮产物含旧HTML、三个原封存源、原始输入、requirements-lock.txt及.gitignore完整树/哈希不变；`protected_before.json`、`protected_after.json` |
-| 编译及最后补充验证 | PASS；`final_code_checks.json`，台账第17、19、20条 |
-| 外部确认 | 1号交付、3号接口确认仍PENDING_EXTERNAL；未发送消息或代替团队确认 |
-| 旧额外复评 | BLOCKED；没有修改契约、没有延期旧预算 |
-| 可选第二共同起点 | NOT_RUN；本轮只报告要求的共同基线起点，不混合两组结果 |
-| 干净安装、完整光学、正式评分 | 未验证；不声称完成 |
+| Full test suite | 94 passed without skips, comprising 65 existing, 14 path, and 15 E5 conditions and history tests. See `pytest_e5.xml`. The suite took 25.92 seconds. |
+| Shared condition integrity | Any mismatch in the initial plan, source, event, fixed or interrupted history, or full or future candidate set is rejected. Modified method inputs are also rejected. |
+| Independent E5 validity | Both new plans passed checks against the original TLE at both endpoints and every internal integer second. All window, fault occupancy, resource, 30-second changeover, single-success, original-priority scoring, and exact-history checks passed. |
+| E5 real-case history attacks | All 16 legitimate and attack cases behaved as expected. A separate shared-source mismatch was rejected. All attacks used complete copies and independent in-memory copies. See `E5_history_security_final/history_security.json`. |
+| Scope of real backdating counterexamples | The backdated candidates independently passed real TLE and window checks. Isolation from all plan resource constraints is unverified. Each attack was required to trigger a history provenance violation. |
+| Read-only E5 recheck | The full tree of 33 files and 3 directories was identical before and after. The initial plan and both new plans were independently validated again. See `E5_recheck/recheck.json`. |
+| E3/E4 regression | All 16 plans across 4 cases were rerun and passed the real TLE checks. The 16 old-format task tables and 4 candidate tables were byte-identical. See `e3_e4_regression.json`. |
+| Newly generated demo | `demo/index.html` was regenerated from this round's E3/E4 artifacts. The data check passed and all 33 actual Chrome interaction checks passed. See `browser/browser_checks.json` and the 3 screenshots. |
+| Full protection of earlier artifacts | The full OLD delivery including the old HTML, the three original sealed sources, raw inputs, `requirements-lock.txt`, and `.gitignore` had identical trees and hashes. See `protected_before.json` and `protected_after.json`. |
+| Compilation and final supplemental checks | PASS. See `final_code_checks.json` and ledger entries 17, 19, and 20. |
+| External confirmation | Member 1's delivery and member 3's interface confirmation remain PENDING_EXTERNAL. No messages were sent and no confirmation was given on the team's behalf. |
+| Earlier optional reevaluation | BLOCKED. No contract changes or extensions to the old budget were made. |
+| Optional second shared starting point | NOT_RUN. This round reports only the requested shared baseline starting point. |
+| Clean install, full optical validation, and formal scoring | Unverified. |
 
-Demo仍展示E3/E4整体流程，E5以独立表格交付，不能把页面旧E4的+11.6分转述为E5收益。新截图已查看，旧HTML字节未变。全部验收门槛分开见 `acceptance.json`，最后脚本补充验证见 `final_code_checks.json`。
+The demo presents the full E3/E4 workflow. E5 is delivered as its own comparison table because the previous E4 page's +11.6-point gain refers to E4. The new screenshots were reviewed and the old HTML bytes were preserved. Acceptance gates are individually recorded in `acceptance.json`. See `final_code_checks.json` for the final supplemental script checks.
 
-本轮唯一预算台账 `R\run_ledger.json`：20条串行受控命令共152.042秒，600秒余447.958秒；均按各自预期完成。修复前被审计的旧CLI实际退出2且污染副本，作为反例如实保存；第1条外层验证命令因成功复现该缺陷而返回0。夹具内部旧台账仅是被测旧入口产物，其全部耗时已包含在第1条，不用于另行扩充预算。阅读、编辑、权限审核等待和写作时间不计入计算预算。没有环境安装/升级，没有扩大样本或参数扫描。
+The single budget ledger, `R\run_ledger.json`, records 20 serial controlled commands totaling 152.042 seconds, leaving 447.958 seconds of the 600-second budget. Each command completed as expected. The audited old CLI actually returned 2 and modified the copy before the fix. That outcome was retained as a counterexample. The first outer verification command returned 0 because the defect was successfully reproduced. The old ledger inside the fixture was an output of the entry point under test. All of its time was included in the first command and contributed no additional budget. Reading, editing, permission review waits, and writing time were outside the compute budget. Environment installation or upgrades, expanded samples, and parameter sweeps were outside scope.
 
-## 给3号：运行、输入输出与退出码
+## Running E5 for Member 3
 
-所有命令从 `G:\bd-fmb` 执行，使用现有解释器，不要求安装新依赖。0为通过、2为失败、3为输入缺失或预算阻塞。每个结果目录必须新建，台账位于结果根目录之外；已有结果不覆盖。
+Run the commands from `G:\bd-fmb` with the existing interpreter and dependencies. Exit code 0 is pass, 2 is failure, and 3 indicates missing inputs or a budget block. Use a new directory for every result and keep the ledger outside the result root. Existing results are protected from overwrite.
 
-E5来源必须是已封存、可回溯原始输入的真实TLE案例。`--initial-plan`接共同JSON，默认来源的`initial_frozen_baseline.json`；`--event`接固定事件，本入口的参数独立于旧smoke_test.py的运行/评价模式。初始计划必须匹配来源的基线CSV，事件必须匹配来源的较晚物理事件；两方法无单独初始计划或事件参数。可选`--reference-method improved`是另一个共同起点，本轮未执行，不应将两起点混作一组。
+The E5 source must be a sealed real-TLE case with traceable raw inputs. `--initial-plan` accepts the shared JSON and defaults to the source's `initial_frozen_baseline.json`. `--event` accepts the fixed event. These arguments are specific to this entry point and independent of the original `smoke_test.py` run and evaluation modes. The initial plan must match the source's baseline CSV, and the event must match the source's later physical event. Both methods use the same initial plan and event arguments. The optional `--reference-method improved` selects another shared starting point, which was outside this run and should be reported separately.
 
-以下在新目录/新600秒台账复现测试、E5和只读复核。已有本地原始数据与OLD产物是必要输入；新克隆不含它们。
+The following commands reproduce the tests, E5, and the read-only recheck in a new directory with a new 600-second ledger. They require the existing local raw data and OLD artifacts, which are absent from a fresh clone.
 
 ```powershell
 Set-Location G:\bd-fmb
@@ -96,38 +96,38 @@ $r = 'outputs/e5_reproduce_' + (Get-Date -Format 'yyyyMMdd_HHmmss_fff')
 $old = 'outputs/improvement_demo_20261023_150452/experiments/E4_seed42_late'
 
 & $py -X utf8 scripts/budget_run.py --ledger "$r/run_ledger.json" --timeout 120 -- $py -X utf8 -m pytest tests -q --basetemp="$r/pytest_tmp" --junitxml="$r/pytest.xml"
-if ($LASTEXITCODE) { throw '测试未通过' }
+if ($LASTEXITCODE) { throw 'Tests failed' }
 
 & $py -X utf8 scripts/run_replan_e5.py --source $old --initial-plan "$old/initial_frozen_baseline.json" --event configs/late_fault.json --out "$r/E5" --ledger "$r/run_ledger.json"
-if ($LASTEXITCODE) { throw 'E5未通过，查看台账与失败证据' }
+if ($LASTEXITCODE) { throw 'E5 failed. Check the ledger and failure evidence.' }
 
 & $py -X utf8 scripts/run_replan_e5.py --check-only --source "$r/E5" --out "$r/recheck" --ledger "$r/run_ledger.json"
-if ($LASTEXITCODE) { throw '独立复核未通过' }
+if ($LASTEXITCODE) { throw 'Independent recheck failed' }
 
 Import-Csv "$r/E5/comparison.csv" | Format-Table method,final_score,fixed_history_score,new_tasks_score,coverage,violations,replan_seconds,net_adjusted_targets
 Get-Content "$r/E5/comparison.md" -Encoding UTF8
 ```
 
-E5采用`shared_initial_replanning_v1`格式，两份schedule都是重规划结果，初始只保存在shared快照；不能交给旧smoke_test.py的`--check-only`按旧初始/重规划命名解释。上面的专用只读入口重新读取共同快照、各方法条件、实际中断表和新任务，调用同一独立原始TLE校验器，并输出完整树前后证据；拒绝在复核时替换初始计划或事件。
+E5 uses the `shared_initial_replanning_v1` format. Both schedules are replanning results and the initial plan lives only in the shared snapshot. Use the dedicated read-only entry point above because the old `smoke_test.py --check-only` expects the earlier initial and replanning naming convention. The dedicated recheck reads the shared snapshot, each method's conditions, actual interruption tables, and new tasks. It calls the same independent original-TLE validator and records full before-and-after tree evidence. Recheck rejects substitutions of the initial plan or event.
 
-按需继续在同一新台账验证真实历史攻击及重建E3/E4 Demo：
+As needed, continue with the same new ledger to verify the real-case history attacks and rebuild the E3/E4 demo.
 
 ```powershell
 & $py -X utf8 scripts/budget_run.py --ledger "$r/run_ledger.json" --timeout 60 -- $py -X utf8 scripts/verify_e5_history.py --source "$r/E5" --out "$r/history_attacks"
-if ($LASTEXITCODE) { throw '历史保护验证未通过' }
+if ($LASTEXITCODE) { throw 'History protection verification failed' }
 & $py -X utf8 scripts/run_improvement.py --spec configs/improvement_demo.json --out "$r/experiments" --ledger "$r/run_ledger.json"
-if ($LASTEXITCODE) { throw 'E3/E4未通过' }
+if ($LASTEXITCODE) { throw 'E3/E4 failed' }
 & $py -X utf8 scripts/budget_run.py --ledger "$r/run_ledger.json" --timeout 60 -- $py -X utf8 scripts/build_demo.py --summary "$r/experiments/summary.json" --out "$r/demo"
-if ($LASTEXITCODE) { throw 'Demo证据未通过' }
+if ($LASTEXITCODE) { throw 'Demo evidence check failed' }
 Start-Process (Resolve-Path "$r/demo/index.html").Path
 ```
 
-直接打开本轮已生成Demo，不重新计算：
+Open the demo already generated in this round directly, without recomputing.
 
 ```powershell
 Start-Process 'G:\bd-fmb\outputs\path_safety_e5_20261023_164001\demo\index.html'
 ```
 
-自动浏览器回归仍用`node scripts/browser_demo_test.mjs HTML NEW_OUTPUT_DIRECTORY`，外层套预算入口，Node24和本机Chrome/Edge为可选测试工具。正常打开HTML不需要Node或Python，页面自包含。
+The automated browser regression still uses `node scripts/browser_demo_test.mjs HTML NEW_OUTPUT_DIRECTORY` under the outer budget entry point. Node 24 and a local Chrome or Edge installation are optional test tools. The self-contained HTML opens normally without Node or Python.
 
-给3号优先读取`summary.json`的status、shared_conditions、gain、rows，结合`checks/*.json`而非只看任务文件存在。给4号使用本页E5表与上述准确结论；E3/E4的画面和讲稿沿用原范围。实际移交及队友确认由用户/团队完成。本轮到此停止，不追加其他场景。
+Member 3 should start with `status`, `shared_conditions`, `gain`, and `rows` in `summary.json` and review `checks/*.json` alongside the task files. Member 4 can use the E5 table and conclusion on this page while keeping the E3/E4 visuals and script within their original scope. The user and team are responsible for actual handoff and teammate confirmation. This round ended at this point with no additional scenarios.

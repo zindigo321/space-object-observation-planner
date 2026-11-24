@@ -1,37 +1,37 @@
-# R19 恢复交付状态
+# R19 Recovery Delivery Status
 
-更新日期：2026-10-29。
+Updated 2026-10-29.
 
-R19完成对R18现有证据的只读恢复、正式封存和独立新路径验收，四项结果均为PASS。**原R18仍为数据PASS、封存FAIL、执行版本封存验收BLOCKED、整体PARTIAL**；新恢复包不追溯改变原运行状态。
+R19 completed read-only recovery of existing R18 evidence, sealing of the recovered package, and independent acceptance from a new path. All four checks returned PASS. **The original R18 results remain data PASS, sealing FAIL, sealed execution-version acceptance BLOCKED, and round status PARTIAL.** The recovery package applies to the evidence collected in R19.
 
-## 恢复范围与计数
+## Recovery Scope and Counts
 
-| 项目 | R19结果 |
+| Item | R19 result |
 | --- | --- |
-| 证据恢复／新包封存／恢复执行版本／独立迁移 | 全部PASS |
-| 新schedule／原生backend／TLE传播 | 0／0／0 |
-| 复核历史initial／native | 2／4 |
-| 历史schedule／backend证据 | 6／12 |
-| 主外检／几何报告／整秒样本 | 12／6／82080 |
-| 初始字节证明／历史上下文／旧几何绑定／负例 | 2／6／6／2 |
-| 正式成功恢复包／正式失败 | 1／0 |
+| Evidence recovery / new package sealing / recovered execution version / independent migration | All PASS |
+| New schedule / native backend / TLE propagation | 0 / 0 / 0 |
+| Historical initial / native runs reviewed | 2 / 4 |
+| Historical schedule / backend evidence | 6 / 12 |
+| Primary external checks / geometry reports / whole-second samples | 12 / 6 / 82080 |
+| Initial byte proofs / history contexts / historical geometry bindings / negative cases | 2 / 6 / 6 / 2 |
+| Successful formal recovery packages / formal failures | 1 / 0 |
 
-历史文件按新观察快照接收并保持原字节。该快照不冒称R18当时已经形成成功全局封存。一次取证准备失败及资格夹具的预期失败均保留，未充正式成功计数。正式资格、封存和迁移使用同一组冻结的10份恢复工具；开发期部分编辑版本未逐版归档的限制仍保留。
+Historical files were taken into custody as a newly observed snapshot, with their original bytes preserved. The snapshot represents the evidence available during R19 recovery. One evidence-collection preparation failure and the expected failures in the qualification fixtures were recorded separately from the formal success count. Formal qualification, sealing, and migration used the same 10 frozen recovery tools. Some development revisions were not individually archived.
 
-## 数据结果的解释
+## Interpreting the Data Results
 
-R18两份十站空历史initial的整数J分别为(914,60)、(1000,60)；t=3600已完成53个任务／794整数分、21个任务／250整数分。四次原生重排为三次平局保留、一次较低候选保留；较低候选964被保护为1000。
+The two R18 ten-station initial plans with empty histories yielded integer objectives J of (914,60) and (1000,60). At t=3600, their cumulative completions were 53 tasks for 794 integer points and 21 tasks for 250 integer points, respectively. Three of the four native replans retained the original on a tie. The fourth retained 1000 over a lower candidate of 964.
 
-两initial较旧三站initial增加41／75整数分及各4个覆盖目标，但BASE的后续selected比旧初始化路径低44／60整数分，不能概括成十站初始化使后续结果普遍更优。J包含未来任务，completed仅为无故障执行假设下的模型累计；不同初始化历史的比较属于路径差异。
+Compared with the previous three-station plans, the two initial plans gained 41 and 75 integer points respectively and covered four additional targets each. The subsequent BASE selections scored 44 and 60 integer points below the old initialization path, so the results describe these specific paths. J includes future tasks. The completed count accumulates under the model's assumption of fault-free execution. Comparisons across different initial histories measure differences between paths.
 
-## 交付证据与费用
+## Delivery Evidence and Budget
 
-内容清单按逻辑路径绑定去重blob，真实seal退出0后才生成终端回执。第二新路径仅从包内材料重建，在隔离Python模式及文件访问审计下验收；旧源目录读取探针被拒绝，缺文件反例明确失败。这是同机新路径验证，不是异机或现场验收。
+The content manifest binds deduplicated blobs to logical paths. The terminal receipt was produced after the actual seal exited with code 0. The second new path was rebuilt solely from package contents and accepted in isolated Python mode with file-access auditing. The old-root read probe was denied and the missing-file negative case failed as expected. Verification covered a new path on the same machine.
 
-两轮独立计账：R18为208.426582／600秒，R19为169.646280／600秒。R19包含失败尝试、正式封存整60秒及收尾保守费用，不代表端到端墙钟，也不合并两轮预算。
+The rounds were accounted for separately. R18 used 208.426582 / 600 seconds. R19 used 169.646280 / 600 seconds, including failed attempts, 60 seconds for formal sealing, and a conservative allowance for wrap-up. These are accounting totals for the individual rounds. End-to-end wall time was outside that measure.
 
-本次只同步文档。产品仍为`83d3014`对应的98文件版本，未新增产品API、修改算法或将恢复工具接入CI；历史回归不冒充本次新运行。
+This update covers documentation. The product uses the API and algorithm from the 98-file version associated with `83d3014`. Recovery tooling is outside CI. The historical test results apply to their original runs.
 
-完整真实数据、CSV、ZIP、机器日志、环境路径及本地prompt继续留在本地，按[提交约定](../CONTRIBUTING.md)不进入公共Git。恢复包逻辑入口为`RELEASE.json`，内容包SHA256为`03060189ebf342eb7626a6690875f01270609ca53d5f4c14b28d2b8f38a05378`；该摘要不表示数据已公开。
+All real data, CSVs, ZIPs, machine logs, environment paths, and local prompts are kept locally under the [contribution guidelines](../CONTRIBUTING.md). The logical entry point to the recovery package is `RELEASE.json`. Its content package SHA256 is `03060189ebf342eb7626a6690875f01270609ca53d5f4c14b28d2b8f38a05378` for local verification.
 
-六天、10000目标、完整光学设备和官方评分仍未验证；R14历史封存证据限制、R15 PARTIAL与R16 BLOCKED保持不变。
+Six-day runs, 10000 targets, complete optical equipment, and official scoring remain unverified. The limitations of the R14 sealing evidence and the R15 PARTIAL and R16 BLOCKED statuses still apply.

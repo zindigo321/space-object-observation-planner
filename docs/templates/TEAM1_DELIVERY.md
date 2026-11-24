@@ -1,25 +1,25 @@
-# 1号交付接收清单（默认未收到）
+# Team 1 Delivery Intake Checklist (Default Pending)
 
-状态：PENDING_INPUT；实际试读NOT_RUN。
+Status is `PENDING_INPUT`. Actual intake inspection is `NOT_RUN`.
 
-- 交付人、接收人、交付时间、渠道、来源记录位置：待填
-- 数据版本与四文件SHA256/字节数：待填
-- ID类型/映射；时间系统/精度；UTC起止；站点列表：待填
-- schema_version / data_version / time_precision_s：待填
-- targets.csv / stations.csv / windows.csv / metadata.json是否齐全：待填
-- 高中低优先级与5/3/2分是否一致；其他结构/规则差异：待填
-- 原始输入保存位置；只读副本和报告位置：待填
+- Sender, recipient, delivery time, channel, and provenance record location — to complete
+- Data version and SHA-256 and byte count for all four files — to complete
+- ID type and mapping, time system and precision, UTC start and end, and stations — to complete
+- `schema_version`, `data_version`, and `time_precision_s` — to complete
+- Presence of `targets.csv`, `stations.csv`, `windows.csv`, and `metadata.json` — to complete
+- Whether high, medium, and low priority scores match 5, 3, and 2, and other schema or rule differences — to complete
+- Original input location and locations of the read-only copy and report — to complete
 
-| 条件 | 已合入窗口？ | 字段、单位与方法 | 未覆盖部分/负责人 |
+| Condition | Included in the windows? | Fields, units, and method | Coverage gaps and owner |
 | --- | --- | --- | --- |
-| 仰角 | 待确认 | 待填 | 待填 |
-| 夜间 | 待确认 | 待填 | 待填 |
-| 目标受光 | 待确认 | 待填 | 待填 |
-| 日月规避 | 待确认 | 待填 | 待填 |
-| 天气 | 待确认 | 待填 | 待填 |
-| 视场 | 待确认 | 待填 | 待填 |
-| 跟踪速度 | 待确认 | 待填 | 待填 |
-| 地形 | 待确认 | 待填 | 待填 |
-| 站点可用性 | 待确认 | 待填 | 待填 |
+| Elevation | To confirm | To complete | To complete |
+| Nighttime | To confirm | To complete | To complete |
+| Target illumination | To confirm | To complete | To complete |
+| Sun and Moon avoidance | To confirm | To complete | To complete |
+| Weather | To confirm | To complete | To complete |
+| Field of view | To confirm | To complete | To complete |
+| Tracking speed | To confirm | To complete | To complete |
+| Terrain | To confirm | To complete | To complete |
+| Station availability | To confirm | To complete | To complete |
 
-实际试读人/命令/返回码/inspection.json位置：待填。全量或子集范围、错误和待适配事项：待填。读取通过不等于物理验证或规划成功；不静默清洗、改时区、改ID或丢站点。
+Record the actual reviewer, command, exit code, and `inspection.json` path. Note whether the inspection covered all data or a subset, as well as errors and pending adaptations. Physical verification and successful planning require their own checks. Document any required cleaning, time-zone conversion, ID remapping, or exclusion of stations.

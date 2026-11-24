@@ -1,18 +1,18 @@
 ---
-name: 问题报告
-about: 报告运行错误、结果异常或文档中的错误
+name: Bug report
+about: Report a runtime error, unexpected result, or documentation error
 ---
 
-## 问题
+## Problem
 
-<!-- 简要描述实际结果和预期结果。文档问题请附上对应页面或章节。 -->
+<!-- Describe what happened and what you expected. For documentation issues, include the page or section. -->
 
-## 复现步骤
+## Steps to Reproduce
 
-<!-- 如适用，请提供运行命令、报错摘要，以及可公开的最小合成输入。 -->
+<!-- If applicable, include the command, a short error excerpt, and the smallest synthetic input you can share publicly. -->
 
-## 版本与环境
+## Version and Environment
 
-<!-- 如适用，请提供提交 SHA 或产品包版本、Windows 和 Python 版本。 -->
+<!-- If applicable, include the commit SHA or release package version, plus your Windows and Python versions. -->
 
-<!-- 请移除真实数据、目标标识、运行产物、本机路径和凭据。 -->
+<!-- Remove real data, target identifiers, run artifacts, local paths, and credentials. -->

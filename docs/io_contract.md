@@ -1,65 +1,65 @@
-# 调度与评价接口 v1
+# Scheduling and Evaluation Interface v1
 
-本版本是 60 目标冒烟测试的交接契约，不代表已确认的正式赛事规则。1 号交付数据、3 号接入方式仍待双方确认。所有 CSV/JSON 使用 UTF-8；CSV 可有 BOM。示例 `examples/synthetic` 为人工合成数据，不能作为真实观测证据。
+This is the handoff contract for the 60-target smoke test. Formal competition rules require separate confirmation. Team 1 data delivery and Team 3 integration still await confirmation from both sides. Use UTF-8 for CSV and JSON. CSV files may include a BOM. `examples/synthetic` contains artificial data and serves as a test fixture.
 
-## 1 号提供的目录
+## Directory Provided by Team 1
 
-| 文件 | 必填字段 | 类型与约束 |
+| File | Required fields | Types and constraints |
 | --- | --- | --- |
-| targets.csv | target_id, priority, full_score | ID 为正十进制整数；priority 为 high/medium/low，满分分别 5/3/2；ID 唯一 |
-| stations.csv | station_id | 正整数且唯一；窗口调度只需此字段，设备限制应已反映在窗口中 |
-| windows.csv | window_id, target_id, station_id, start_utc, end_utc | window_id 为非空唯一字符串；引用已有目标和站；开始早于结束 |
-| metadata.json | schema_version, data_version, time_precision_s, horizon_start_utc, horizon_end_utc, filters_applied | schema_version=1，time_precision_s=1；版本非空字符串；filters_applied 为实际已应用过滤条件的字符串列表 |
+| `targets.csv` | `target_id, priority, full_score` | Unique positive decimal IDs. Priority is `high`, `medium`, or `low`, with maximum scores of 5, 3, or 2. |
+| `stations.csv` | `station_id` | Unique positive integer. This is the only field required for window scheduling. Apply equipment constraints when producing the windows. |
+| `windows.csv` | `window_id, target_id, station_id, start_utc, end_utc` | Nonempty unique `window_id`, references to existing targets and stations, and a start before the end. |
+| `metadata.json` | `schema_version, data_version, time_precision_s, horizon_start_utc, horizon_end_utc, filters_applied` | `schema_version=1`, `time_precision_s=1`, a nonempty version string, and a list of strings naming the filters actually applied. |
 
-UTC 严格写为 `YYYY-MM-DDTHH:MM:SSZ`，精度为整秒，不接受本地时间、未注明时区、偏移形式或小数秒。时长单位为秒，满分为任务分。Alpha-5 TLE 编号在兼容适配器中转为十进制 ID。`window_id` 不应因排序变化而改变。
+Use `YYYY-MM-DDTHH:MM:SSZ` and integer-second precision for UTC. The parser rejects local times, unspecified time zones, offsets, and fractional seconds. Durations are in seconds and maximum scores are in task points. The compatibility adapter converts Alpha-5 TLE numbers to decimal IDs. `window_id` should be stable under reordering.
 
-窗口几何端点包含起止时刻，任务必须完整落在一个窗口中；占用使用半开区间 `[start,end)`。短于 120 秒的合法窗口保留并记录，不产生候选，不算数据错误。窗口允许重叠；这不意味着站点可并行执行任务。
+Geometric windows include both endpoints. A task must fit entirely within one window, and resource occupancy uses the half-open interval `[start,end)`. Legal windows shorter than 120 seconds remain in the input and are recorded without producing candidates. Windows may overlap even when the station has capacity for only one task at a time.
 
-未知编号、重复编号、缺字段、非法时间、错误优先级/满分或窗口超出元数据时域均立即拒绝。站点子集与规划子时域可配置；合法窗口按子时域裁剪。标准窗口模式使用表内全部目标，seed 和抽样数仅用于 TLE 抽样路径。
+The parser rejects unknown or duplicate IDs, missing fields, invalid times, incorrect priorities or maximum scores, and windows outside the metadata horizon. Station subsets and planning sub-horizons are configurable. Legal windows are clipped to the sub-horizon. Standard window mode uses all targets in the table. The seed and sample counts apply only to the TLE sampling path.
 
-`filters_applied` 应写明仰角、夜间、地影/目标受光、日月规避、天气、视场等哪些已应用；空列表表示没有宣称任何过滤。接口不把供应方声明当作已独立物理验证。TLE 适配器仅计算几何仰角 10°—85°，未验证完整光学可观测性。
+`filters_applied` should list applied filters such as elevation, nighttime, Earth shadow or target illumination, Sun and Moon avoidance, weather, and field of view. An empty list declares no filters. Provider declarations require separate physical verification. The TLE adapter computes geometric elevations from 10° to 85°. Full optical observability remains unverified.
 
-## 配置及排程函数
+## Configuration and Scheduling Function
 
-完整可复制配置见 `configs/smoke.yaml`、`configs/seed17.yaml`、`configs/seed23.yaml`、`configs/synthetic.yaml`。
+Copy the complete configurations from `configs/smoke.yaml`, `configs/seed17.yaml`, `configs/seed23.yaml`, or `configs/synthetic.yaml`.
 
-- 实验参数：`seed`、`sample_counts: {high, medium, low}`、`station_ids`、`start_utc`、`horizon_seconds`（或 `start_utc` + `end_utc`）、`input_dir`、`input_mode`、`method`、候选网格和裁剪上限。
-- 固定本轮假设：时长 `[120,240]`，分别得满分 60%/100%；切换 30 秒；仰角 `[10,85]`。配置偏离这些值会拒绝，不推定中间时长评分。
-- `frozen_sample` 可指定已经冻结的 TLE 样本；种子、每档数量、原始输入哈希必须一致。省略时，在当前新输出目录中先冻结再计算，不按结果换样。
-- `method` 为 `baseline`、`improved` 或回归用 `both`。`baseline` 保留原先按开始时刻排序的贪心；`improved` 保留优先级/稀缺性/冲突损失构造，并以整数分、覆盖数词典序和基线比较回退。
-- 可调用函数：`planner.scheduler.schedule(candidates, method='baseline', *, fixed=(), interrupted=(), clock)`。输入为内部整秒候选字典，返回新任务列表，不修改输入；`clock.check()` 用于预算控制。CSV 接入优先使用统一命令，避免业务调用者构造内部字段。
+- Experiment parameters include `seed`, `sample_counts: {high, medium, low}`, `station_ids`, `start_utc`, `horizon_seconds` (or `start_utc` plus `end_utc`), `input_dir`, `input_mode`, `method`, the candidate grid, and the pruning limit.
+- The assumptions for this round are durations of `[120,240]` seconds, earning 60% or 100% of maximum points, a 30-second changeover, and elevation of `[10,85]` degrees. The parser rejects configurations that deviate from these values. The contract defines no scoring for intermediate durations.
+- `frozen_sample` can specify an existing frozen TLE sample. The seed, counts by priority, and raw input hashes must match. If omitted, freeze the sample in the new output directory before computing. Select the sample before seeing the results.
+- `method` can be `baseline`, `improved`, or `both` for regression. `baseline` retains the original start-time-ordered greedy method. `improved` constructs a plan using priority, scarcity, and conflict loss, and falls back after lexicographic comparison of integer points and coverage with the baseline.
+- The callable is `planner.scheduler.schedule(candidates, method='baseline', *, fixed=(), interrupted=(), clock)`. It takes internal integer-second candidate dictionaries and returns a new task list without mutating the input. `clock.check()` enforces the budget. Prefer the common command for CSV integration so callers can use the documented interface fields.
 
-## 任务与独立评价
+## Tasks and Independent Evaluation
 
-`tasks_<方法>.csv` 为交接文件，至少包含 `task_id,target_id,station_id,start_utc,end_utc,duration_s,status`。`schedule_*.csv` 保留旧内部格式以便 E0 逐字节对照，目标字段名为 `satnum`。额外字段 `candidate_id,window_id,priority,start_s,end_s,points_int,score` 用于追踪和检查。独立评价从 targets 的原始优先级和实际 UTC 时长重算得分，不采用自报 `score`。统一输出中自报分和来源字段也会被交叉核对。
+`tasks_<method>.csv` is the handoff file. It contains at least `task_id,target_id,station_id,start_utc,end_utc,duration_s,status`. `schedule_*.csv` keeps the legacy format for byte-for-byte comparison with E0 and uses `satnum` as the target field. Additional fields `candidate_id,window_id,priority,start_s,end_s,points_int,score` support tracing and checks. Independent evaluation recomputes the score from original target priorities and actual UTC task durations. Unified output also cross-checks self-reported scores and source fields.
 
-每目标全站至多一次成功；同站不重叠；不同目标至少间隔 30 秒。中断占用仍检查资源冲突，但计零分；其目标可重新完整执行。满分与整数点换算为 `points_int = task_score * 5`。
+A target can succeed at most once across all stations. Tasks cannot overlap at the same station, and different targets require at least 30 seconds between tasks. The evaluator checks resource conflicts for interrupted occupancy. An interrupted task scores zero and its target may be observed again. Convert task points to integer points with `points_int = task_score * 5`.
 
-故障重规划须额外提供独立保存的初始任务表、事件 JSON 和中断表：
+Fault replanning also requires an independently retained initial task table, an event JSON file, and an interruption table.
 
-- 事件必需 `station_id,start_s,end_s`；秒数相对配置起点，故障占用 `[start_s,end_s)`；产出事件同时含 UTC 和选择说明。
-- 初始任务 `end_s <= 故障开始`：保留为 `completed`。
-- `start_s < 故障开始 < end_s`：健康站为 `locked`；故障站截断为 `interrupted`，保存 `planned_end_s,planned_duration_s,planned_end_utc`。
-- 故障恰好在任务开始：尚未执行，不形成 locked 或零时长 interrupted；健康站可从该时刻重新安排。恰好在任务结束：算 completed。
-- 除上述保留成功任务外，其余成功任务必须 `status=new_success` 且开始不早于故障。历史集合和中断集合均要求与独立推导结果完全相同，不能靠改 status 增删历史。
-- 初始计划、窗口和原始目标应由评价方持有。本地 manifest 检测意外或单文件篡改，不是抵抗“同时篡改所有输入和清单”的数字签名。
+- The event requires `station_id,start_s,end_s`. Seconds are relative to the configuration's start time. The fault occupies `[start_s,end_s)`. Produced event records also include UTC and an explanation of event selection.
+- Keep an initial task as `completed` when `end_s <= fault start`.
+- When `start_s < fault start < end_s`, a healthy station's task is `locked`. At the failed station, truncate it to `interrupted` and retain `planned_end_s,planned_duration_s,planned_end_utc`.
+- A task is unexecuted when the fault occurs exactly at its start. Such a task is neither locked nor a zero-length interruption, and a healthy station can reschedule from that instant. A task that ends exactly at the fault is completed.
+- Beyond these retained successes, successful tasks must have `status=new_success` and start at or after the fault. The history and interruption sets must match the independently derived results exactly. Status edits cannot add or remove history.
+- The evaluator should retain the initial plan, windows, and original targets. The local manifest detects accidents and single-file tampering. It provides no digital signature to detect coordinated changes to all inputs and the manifest.
 
-`--evaluate` 读取标准任务表独立评价；初始表也会先独立校验。仅最小必填列的初始任务可评价；动态评价建议保留完整来源列，确保历史身份逐字段匹配。缺少 window_id 时按匹配窗口确定。
+`--evaluate` independently evaluates a standard task table and checks the initial table first. Initial tasks with only required columns can be evaluated. For dynamic evaluation, preserve the full source columns to match history identity field by field. If `window_id` is absent, the evaluator identifies the matching window.
 
-## 输出和退出码
+## Outputs and Exit Codes
 
-每次 `--out` 必须是全新目录，源输入、源结果、缓存目录与输出不得嵌套。`--check-only --source ... --out ...` 只读源证据，所有报告、日志、计时写入新目录，并保存源目录全部文件的前后 SHA256 清单。
+Use a new directory for every `--out`. Source inputs, source results, cache directories, and outputs must not be nested. `--check-only --source ... --out ...` reads source evidence and writes reports, logs, and timings to a new directory. It saves before-and-after SHA-256 inventories of all files under the source.
 
-| 状态/退出码 | 含义 |
+| Status and exit code | Meaning |
 | --- | --- |
-| PASS / 0 | 所请求核心流程执行完成且独立约束检查通过；不表示最优、不表示正式赛事得分或队友确认 |
-| FAIL / 2 | 数据错误、证据变化或约束违例，原因在 failure.json 或各检查报告 |
-| BLOCKED / 3 | 缺少必需输入、预算到期、运行隔离失败或额外复评契约未统一；不是 PASS |
+| PASS / 0 | The requested core workflow finished and independent constraint checks passed. Optimality, official scoring, and teammate confirmation require separate evidence. |
+| FAIL / 2 | Data error, changed evidence, or a constraint violation. See `failure.json` or the check reports. |
+| BLOCKED / 3 | Missing required input, expired budget, failed runtime isolation, or an unresolved optional evaluator contract. |
 
-空任务表在资源约束上可行，覆盖和分数为零；无有效故障演示时 `fault_demo_status=BLOCKED`。核心运行与可选额外复评分别标状态，后者不混入主评价 PASS。
+An empty task table satisfies resource constraints and yields zero coverage and score. Without a valid fault demonstration, `fault_demo_status=BLOCKED`. The core run and optional secondary evaluation report separate statuses.
 
-主要产物：`metrics.json`（实际任务分、覆盖、分档、可执行分母、窗口/候选数、违例、阶段耗时）、`checks/*.json`（独立详细证据）、`effective_config.json`、`frozen_sample.json`、`input_hashes.json`、`standard_input/`、`cache.json`、`timing.json`、`execution.json`、`evidence_manifest.json`。
+Main artifacts include `metrics.json` with actual task scores, overall coverage, coverage by priority, the executable denominator, window and candidate counts, violations, and stage times. `checks/*.json` contains detailed independent evidence. Other outputs include `effective_config.json`, `frozen_sample.json`, `input_hashes.json`, `standard_input/`, `cache.json`, `timing.json`, `execution.json`, and `evidence_manifest.json`.
 
-覆盖率分别是覆盖目标数/全部输入目标数、覆盖目标数/至少存在一个合法 120 秒候选的目标数；分母为零时 rate 为 null。故障后仍沿用全规划期候选分母，便于与初始计划对照。TLE 模式另逐秒检查排程区间仰角；窗口模式仅验证所提供窗口，不声称重新验证其物理过滤条件。
+Coverage rates use two denominators. Divide covered targets by all input targets for total coverage, and by targets with at least one legal 120-second candidate for executable coverage. A zero denominator yields `rate=null`. Fault results retain the full-horizon candidate denominator for comparison with the initial plan. TLE mode also checks elevation at each integer second in the scheduled interval. Window mode verifies the supplied windows. Their physical filters require separate verification.
 
-缓存绑定原始输入哈希、实际抽样 ID、站点参数、UTC 起点和时长、过滤条件、粗细采样参数、运行依赖版本和适配器源文件 SHA256，并校验缓存内容哈希。单次运行总预算不超过 300 秒；父进程通过 Windows Job Object（POSIX 为进程组）约束整棵子进程树，超时保留已有证据，不自动重试。
+The cache binds raw input hashes, sampled IDs, station parameters, the UTC start and duration, filters, coarse and fine sampling parameters, runtime dependency versions, and the adapter source hash. It also verifies the cache contents by hash. A single run has a total budget of at most 300 seconds. The parent guards the full process tree with a Windows Job Object or POSIX process group. After a timeout, it preserves available evidence and stops.

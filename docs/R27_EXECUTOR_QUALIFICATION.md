@@ -1,55 +1,55 @@
-# R27 执行器资格状态
+# R27 Executor Qualification Status
 
-更新日期：2026-11-01。
+Updated 2026-11-01.
 
-R27状态为 **R27_EXECUTOR_QUALIFICATION_PASS**。本机候选恢复后的实际执行链为：父Job → 复制post → FileAudit → 统一launcher → 原v2 accept。资格post和原accept各执行一次，原始退出均为0。
+R27 reached **R27_EXECUTOR_QUALIFICATION_PASS**. On the same machine, the recovered candidate ran through the parent Job, copied post, FileAudit, unified launcher, and original v2 accept in that order. The qualification post and original accept each ran once, and both returned raw exit code 0.
 
-**正式seal和正式post均未启动，计数0、退出码null。** 资格恢复不冒充正式封存／正式迁移，后续仍需独立执行与验收。本次公开更新只发布聚合说明，不接入产品API或发布研究执行器。
+**Formal seal and formal post each had a count of 0 and exit code null.** Formal sealing and migration still require independent execution and acceptance. This public update reports the aggregate evidence. The research executor and its product API integration are outside this update.
 
-## 资格与保护证据
+## Qualification and Protection Evidence
 
-| 项目 | R27实测与范围 |
+| Item | R27 measured result and scope |
 | --- | --- |
-| 资格post／原accept | 各1次，原始退出0 |
-| 内置副本负例 | 18/18通过 |
-| 旧根拒读probe | 按预期拒绝，读入0字节 |
-| 两层应用审计 | inner仅1项预期拒读，outer无非预期拒绝 |
-| 原字节核心／候选ZIP | 37普通成员；加根manifest共38项ZIP |
-| 执行文件freeze | 11项身份一致 |
-| 历史原件／树／消费原件 | 22624／3／41，全部通过 |
-| 父监督 | 原始退出0、零活动Job成员、输出及process/Job句柄关闭 |
-| 正式seal／正式post | 0／0，未启动 |
-| 新求解／生产schedule/backend／传播 | 均0 |
+| Qualification post / original accept | One run each, raw exit code 0 |
+| Negative cases using built-in copies | 18/18 passed |
+| Old-root read probe | Denied as expected, 0 bytes read |
+| Two layers of application auditing | Inner recorded one expected read denial. Outer recorded zero unexpected denials |
+| Core original bytes / candidate ZIP | 37 regular members, 38 ZIP entries with the root manifest |
+| Execution-file freeze | 11 matching identities |
+| Historical originals / trees / consumed originals | 22624 / 3 / 41, all passed |
+| Parent supervision | Raw exit code 0, zero active Job members, and closed output and process/Job handles |
+| Formal seal / formal post | 0 / 0, never started |
+| New solves / production schedule or backend calls / propagation | All 0 |
 
-最终回执直接绑定29项关键文件，父观察追加16项晚证据与6项入口身份。重复payload通过精确manifest传递覆盖，不代表整个目录、整机或跨机环境都已认证。原RESULT保留待最终读回状态，最终PASS由outer读回、实际父退出和末次父观察共同确定，不能只检查一个PASS字段。
+The final receipt directly binds 29 key files. The parent observation adds 16 late evidence items and six entry-point identities. Repeated payloads are covered through their exact manifests. Certification is limited to that scope. The original RESULT retained its pending final-readback state. The final PASS is supported jointly by the outer readback, the actual parent exit, and the last parent observation.
 
-## 历史状态保持
+## Historical Statuses
 
-| 轮次 | 状态及解释 |
+| Round | Status and explanation |
 | --- | --- |
-| R21 | PARTIAL；6组启动5组、通过2组；native0/4，没有完整矩阵结论 |
-| R22、R23 | PARTIAL；恢复与读回修订未形成当轮完整接受 |
-| R24、R25 | BLOCKED；局部监督／读取验证不替代完整资格 |
-| R26-A | BLOCKED；先读取再登记，起点未闭合 |
-| R26-B | BLOCKED；12项Job局部检查通过，完整资格未启动、保护到期未完成 |
-| R27 | 仅执行器完整资格PASS；不升级旧轮 |
+| R21 | PARTIAL. Five of six cases started and two passed. Native runs were 0/4, so the matrix remained incomplete |
+| R22, R23 | PARTIAL. The recovery and readback revisions did not reach complete acceptance in those rounds |
+| R24, R25 | BLOCKED. Only partial supervision or read checks were completed |
+| R26-A | BLOCKED. Reading preceded registration, leaving the starting state unresolved |
+| R26-B | BLOCKED. All 12 partial Job checks passed. Full qualification remained unstarted and protection was incomplete at expiry |
+| R27 | Full executor qualification PASS for R27 |
 
-R21的两个initial J为(2758,180)、(3000,180)，不属于R27新增计算或收益。R21 backend启动confirmed5、unknown2、范围[5,7]不变；4份完成回执不能当成精确启动总数。R18继续PARTIAL，R19恢复交付及R20输入交付的既有状态也不改。
+The two R21 initial objectives J were (2758,180) and (3000,180). They remain R21 results. The R21 backend start counts remain five confirmed and two unknown, for a range of [5,7]. Four completion receipts establish four completions. R18 remains PARTIAL, and the previously reported R19 recovery and R20 input delivery statuses still apply.
 
-## 计时口径
+## Timing Scope
 
-准备完成100.925秒，资格结束176.992秒，保护父报告232.279秒，最终化父报告253.919秒。保存的最后父采样为423.5412529秒，可用同次QPC记录复算；阶段门槛通过。
+Preparation completed at 100.925 seconds, qualification at 176.992 seconds, the parent protection report at 232.279 seconds, and the parent finalization report at 253.919 seconds. The last saved parent sample was 423.5412529 seconds, reproducible from the same run's QPC data. The stage thresholds passed.
 
-执行交接另报告末次423.59秒，计入最后工具返回的保守覆盖为428.72秒，低于600秒。这两个精确值的独立末工具返回回执未保存在该交付目录，因此只按执行交接补充记录，不伪称已从父文件独立复算。计费覆盖声明的工具／执行器区间，不宣称聊天端到端时间或累计研发总费用为600秒。
+The execution handoff also reported a final sample of 423.59 seconds and conservative coverage of 428.72 seconds including the final tool return, below 600 seconds. The delivery directory lacks the independent final tool-return receipts for those exact values, so they are attributed to the execution handoff. The charge covers the declared tooling and executor interval. End-to-end chat time and cumulative development costs fall outside that measure.
 
-## 复用与公开边界
+## Reuse and Publication Scope
 
-后续可以沿用已资格的post、accept和Job原字节，另做正式封存与新路径迁移。新的晚证据必须置于声明的外层包或旁车并独立绑定，不能塞进原37成员的精确树后仍沿用旧manifest。
+A later round can reuse the qualified post, accept, and Job bytes and perform formal sealing and migration to a new path separately. New late evidence belongs in a declared outer package or sidecar with its own binding. The original manifest applies to its exact 37-member tree.
 
-运行环境只在同机绑定，没有随包分发；3935条声明runtime路径的读取验证不是全环境一致或通用安全隔离认证。本轮不新增算法分数、完成任务或方法收益，也没有新的轨道／几何真值结论。
+The runtime environment was bound on the same machine and kept outside the package. Read checks for 3935 declared runtime paths cover those paths. Full environment equivalence and generic security isolation are outside that scope. R27 generated zero additional algorithm scores, completed tasks, or method gains. It established no new orbital or geometric ground truth.
 
-公开仓库仅同步本页和其他聚合文档。真实目标、任务表、TLE、完整manifest、ZIP、审计日志、研究工具、机器路径与本机prompt均不上传。受审本地父观察入口的SHA256摘要为：
+The public repository carries this page and other aggregate documentation. Real targets, task tables, TLEs, full manifests, ZIPs, audit logs, research tools, machine paths, and local prompts stay local. The SHA256 digest of the audited local parent-observation entry point is
 
 `de09d4263a1b4d3e53c1fdade3fb31e303074bcd504108158d82304e1ec264a7`
 
-此摘要用于核对本地证据身份，不表示相应原文件已发布到GitHub。提交范围遵循[协作与提交](../CONTRIBUTING.md)。
+Use this digest to verify the identity of the local evidence. Publication scope follows the [contribution guidelines](../CONTRIBUTING.md).

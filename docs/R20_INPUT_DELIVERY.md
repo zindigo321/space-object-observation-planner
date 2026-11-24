@@ -1,39 +1,39 @@
-# R20 共同输入交付状态
+# R20 Shared Input Delivery Status
 
-更新日期：2026-10-30。
+Updated 2026-10-30.
 
-R20为**INPUT_DELIVERY_PASS**：输入、封存、执行版本和同机新路径独立读回均PASS，父监督原始退出0。它是研究输入交付，不是算法实验PASS；**R18仍为PARTIAL**，R19恢复结果及旧失败不改。
+R20 reached **INPUT_DELIVERY_PASS**. The input, seal, execution version, and independent readback from a new path on the same machine all passed. The parent supervisor exited with raw code 0. The result covers research input delivery. **R18 remains PARTIAL**, and the R19 recovery outcome and earlier failures remain recorded.
 
-## 输入范围与计数
+## Input Scope and Counts
 
-| 项目 | R20实测 |
+| Item | R20 measured result |
 | --- | --- |
-| 目标／可执行目标／站点 | 180／180／10 |
-| 高／中／低优先级 | 60／60／60 |
-| 窗口／完整候选 | 6709／116223 |
-| 零候选目标／空窗口目标×站组合 | 0／153 |
-| H60子集窗口／候选 | 2173／39720 |
-| 其余120目标窗口／候选 | 4536／76503 |
-| schedule／原生backend／initial／native | 0／0／0／0 |
+| Targets / executable targets / stations | 180 / 180 / 10 |
+| High / medium / low priority | 60 / 60 / 60 |
+| Windows / complete candidates | 6709 / 116223 |
+| Targets with zero candidates / target-station pairs with no windows | 0 / 153 |
+| H60 subset windows / candidates | 2173 / 39720 |
+| Remaining 120 targets' windows / candidates | 4536 / 76503 |
+| schedule / native backend / initial / native | 0 / 0 / 0 / 0 |
 
-模型固定2026-08-05 UTC全天、86400秒，十站及数值参数与R18一致；H60严格嵌套H180，九个原始文件身份一致，没有拼入R12的Aug03旧窗口。几何仰角10至85度、无折射、粗30／细1秒；时长120／240秒、切换30秒，每窗每时长最多12起点。历史包缺少依赖及内置时间辅助数据的完整历史字节身份，因此实际复用窗口0，全冷生产1800目标×站组合。
+The model covers all 86400 seconds of 2026-08-05 UTC. It uses the same 10 stations and numeric parameters as R18. H60 is a strict subset of H180 and the identities of all nine raw files match. The input uses windows generated for this run. The R12 Aug03 windows are outside that set. Geometric elevation is 10–85 degrees without refraction, sampled at 30-second coarse and 1-second fine intervals. Task durations are 120 or 240 seconds, with 30 seconds between tasks and up to 12 starts per duration per window. The historical package lacked complete historical byte identities for the dependencies and embedded time auxiliary data. As a result, zero windows were reused and all 1800 target-station pairs were generated from scratch.
 
-窗口统一排序编号并保留旁车映射，全部候选由未修改的make_candidates生成，确定性逐字节重演通过。原始TLE历元标量检查10000次。传播并非0：生产向量后端调用14725次、样本20952285个；几何elevations调用13078次，另独立直接几何调用1647次，传播错误0。只读输入验证器的propagation_calls=0仅指其自身，不能代表整轮。
+The windows were sorted and numbered consistently, with a sidecar mapping retained. The original `make_candidates` generated all candidates, and the deterministic replay matched byte for byte. Raw TLE epochs were checked 10000 times with scalar calculations. Production made 14725 vector propagation backend calls for 20952285 samples. Geometry made 13078 `elevations` calls and another 1647 independent direct geometry calls. Propagation errors totaled zero. The read-only input validator's `propagation_calls=0` describes that validator alone.
 
-## 验证与解释边界
+## Verification and Interpretation
 
-全部窗口的起点、末个有效整秒及中点共20127样本通过，容差1e-7度，最大直接／参考误差0度。窗口end_s含端；153个空组合仅支持冻结网格及实际细查范围的负证据，不证明连续时间搜索完备或完整光学可观测。
+All 20127 samples covering every window's start, last valid whole second, and midpoint passed. The tolerance was 1e-7 degrees, and the maximum direct versus reference error was 0 degrees. A window's `end_s` is inclusive. The 153 empty pairs establish absence within the frozen grid and the regions that were actually refined. Continuous-time search completeness and full optical observability remain unverified.
 
-逐目标候选最高分之和为3000整数分、对应score600。这是忽略资源冲突的松上界，不是达到的J、联合可行最优值、completed或方法收益。
+Summing the highest candidate score for each target gives 3000 integer points, equivalent to a score of 600. This is a loose upper bound that ignores resource conflicts. The sum measures neither an achieved J nor a jointly feasible optimum, completed score, or method gain.
 
-源码绑定b0e6461完整99文件树，生产模块与此前绑定版本一致；五份控制／协议文件在正式生产前冻结，运行后身份一致。资格正例真实完成归档、seal和terminal，错ID、错日／绑定、缺文件、篡改及非零退出／短超时均按预期拒绝。正式生产和seal各一次、正式失败0；预检及最终报告的小失败单独披露，不据此声称全程无失败。
+The source is bound to the complete 99-file tree at `b0e6461`. Production modules match the earlier bound version. Five control and protocol files were frozen before formal production and matched their identities afterward. The positive qualification case completed archiving, sealing, and terminal receipt generation. Wrong IDs, wrong dates or bindings, missing files, tampering, nonzero exits, and short timeouts were rejected as expected. Formal production and sealing each ran once, with zero formal failures. The preflight and final-report failures are reported separately.
 
-## 费用与交付
+## Budget and Delivery
 
-保守费用530.423／600秒：准备442.438（低于480上限）、seal整60、独立验收7.985、尾部20。准备包含45秒保守预检，部分初期工具没有完整UTC定位；账本不是整段聊天墙钟。
+Conservative accounting totaled 530.423 / 600 seconds, comprising 442.438 for preparation below its 480-second limit, 60 for sealing, 7.985 for independent acceptance, and 20 for wrap-up. Preparation includes a conservative 45-second preflight allowance. Complete UTC timing was unavailable for some early tools. The ledger measures the scoped work.
 
-真实seal退出0后才写成功terminal。第二新路径使用包内源码／工具及已绑定的外部Python运行环境，缺文件副本退出1；依赖身份收入包内，运行环境本身未打包。结论限本次同机依赖边界，不是异机验收或通用安全沙箱。
+The successful terminal receipt was written after the actual seal exited with code 0. The second new path used the packaged source and tools with the bound external Python environment. The missing-file copy exited with code 1. Dependency identities are in the package, and the runtime environment is external. The result applies to this same-machine dependency boundary.
 
-研究输入包没有真实initial，不是no_fault_source v1，不新增产品API。R21计划消费固定输入运行2 initial＋4 native，仍未执行；本轮没有新增J或方法差。
+The research input package contains zero real initial plans. It serves the research workflow, separately from the `no_fault_source` v1 format and product API. The planned R21 use of the frozen input for two initial and four native runs remained pending at this point. R20 produced zero new J values or differences between methods.
 
-按[提交约定](../CONTRIBUTING.md)，真实数据、完整包、研究工具及机器回执继续留本地。本地唯一R21入口RELEASE.json的SHA256为`8b8b8a6ff087803a5261961e77740070978003196b8531e891ab1d195bc635e4`；公布此摘要不表示数据包已上传GitHub。
+Under the [contribution guidelines](../CONTRIBUTING.md), real data, full packages, research tools, and machine receipts are kept locally. The sole local R21 entry point is `RELEASE.json`, with SHA256 `8b8b8a6ff087803a5261961e77740070978003196b8531e891ab1d195bc635e4`. The digest allows verification of the local package.
