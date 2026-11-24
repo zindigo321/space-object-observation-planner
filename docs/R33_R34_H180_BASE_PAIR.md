@@ -1,106 +1,106 @@
-# R33-C / R34：H180_BASE 同起点 native 配对
+# R33-C and R34 H180_BASE native comparison from a common starting plan
 
-更新日期：2026-11-02。
+Updated 2026-11-02.
 
-R33-C 的 `R33_H180_BASE_BASELINE_PASS` 与 R34 的 `R34_H180_BASE_IMPROVED_PASS` 支持一组限定结论：在相同 H180_BASE 起点、`t=3600` 和冻结候选池下，baseline 的 selected `J=(2758,180)`，improved 的 selected `J=(2806,180)`。整数主分增加 48，按本任务的五分之一换算为任务分增加 9.6；覆盖均为 180。
+R33-C's `R33_H180_BASE_BASELINE_PASS` and R34's `R34_H180_BASE_IMPROVED_PASS` support a specific result. With the same H180_BASE starting plan, `t=3600`, and frozen candidate pool, baseline selected `J=(2758,180)` and improved selected `J=(2806,180)`. The integer primary score rose by 48, or 9.6 task points under this task's one-fifth conversion. Both plans covered 180 targets.
 
-本次只读复核中，预先固定协议的配对审计 354 项、R34 结果审计 499 项全部通过。复核没有运行 native、求解器或新的轨道传播。两个执行轮次的有限 PASS 不代表完整 native 矩阵完成，也不代表正式成果已封存或验收。
+The read-only review passed all 354 paired-audit checks under the preregistered protocol and all 499 R34 result-audit checks. The review used saved evidence and performed zero native runs, solver runs, or new orbit propagation. The two execution passes cover a subset of the native matrix. Formal sealing and acceptance remain pending.
 
-## 配对身份与执行范围
+## Pairing identity and execution scope
 
-两组实际执行的产品版本均为 `1e35f9575ba79bd0d25fdfe96f624dce2a4ff5a5`，对应完整、逐文件核对的 100 文件产品树。本页新增文档以远端文档基线 `ab5fdd73315242353beb0bc31290379208fe5a8a` 为基础；后者不是本次实验执行的产品版本。
+Both runs executed product version `1e35f9575ba79bd0d25fdfe96f624dce2a4ff5a5`, corresponding to the full, file-by-file verified 100-file product tree. This page was added on top of remote documentation baseline `ab5fdd73315242353beb0bc31290379208fe5a8a`. The product commit identifies the executed version.
 
-| 配对条件 | 核对结果 |
+| Pairing condition | Verification result |
 | --- | --- |
-| 源数据 | 相同 H180_BASE，完整 8 文件源字节一致；180 个目标、10 个站、6,709 个窗口、116,223 个候选 |
-| 起点与决策时刻 | 相同初始计划、共享 retained 计划及 `t=3600`；两轮未重新生成起点、窗口或候选 |
-| 产品与控制基线 | 相同 100 文件产品树、279 文件原控制冻结集及共享执行组件 |
-| 运行环境身份 | 相同解释器及声明的 3,935 文件运行环境映射；不构成跨机器复现认证 |
-| 预算配置 | 每组 solver 30 秒、workflow 180 秒、group 230 秒；每轮独立计费上限 600 秒 |
-| 业务方法 | baseline 与 improved 是预定的业务参数差别；轮次、输出标识及捕获格式分别记录 |
+| Source data | Same H180_BASE and byte-identical eight-file source. 180 targets, 10 stations, 6,709 windows, and 116,223 candidates. |
+| Starting plan and decision time | Same initial plan, shared retained plan, and `t=3600`. Both runs reused the starting plan, windows, and candidates. |
+| Product and control baseline | Same 100-file product tree, frozen set of 279 original control files, and shared execution components. |
+| Runtime identity | Same interpreter and declared runtime mapping of 3,935 files. This establishes the environment identity for the paired runs only. |
+| Budget configuration | Each group had 30 seconds for the solver, 180 seconds for the workflow, and 230 seconds for the group. Each round had a separate 600-second accounting limit. |
+| Method | The planned method parameter differed between baseline and improved. Each round recorded its own identifiers, output labels, and capture format. |
 
-这是一个固定实例跨两轮的配对比较。轮次标识和外层记录格式有差异，不能把整个外层控制程序称为逐字节相同。
+The pair compares one fixed instance across two rounds. Round identifiers and the outer recording format differ, so the byte-identity finding applies to the shared inputs and product tree.
 
-每轮 native 启动并确认 1 次、solver 入口 1 次，produce、evaluate、recheck 三个 backend 各完成 1 次，三个阶段退出均为 0。数据、分支及执行时几何检查均通过；保存记录支持父进程退出及 Job 清理通过。
+Each round had one confirmed native launch and one solver entry. The produce, evaluate, and recheck backend stages each completed once, with exit code 0 for all three. Data, selection branch, and execution-time geometry checks passed. The saved records support successful parent process exit and Job cleanup.
 
-## 目标函数与调整分解
+## Objective and breakdown of adjustments
 
-这里 `J=(整数主分,覆盖目标数)`；任务分为整数主分除以 5。
+Here `J=(integer primary score, covered target count)`. Task points equal the integer primary score divided by 5.
 
-| 方法 | retained J | raw J | selected J | 分支 | 净调整目标数 |
+| Method | retained J | raw J | selected J | Branch | Targets with net adjustments |
 | --- | --- | --- | --- | --- | ---: |
 | R33-C baseline | (2758,180) | (2758,180) | (2758,180) | KEEP_RETAINED_TIE | 0 |
 | R34 improved | (2758,180) | (2806,180) | (2806,180) | ACCEPT_CANDIDATE_STRICTLY_BETTER | 49 |
 
-独立复算按源数据的优先级与任务时长重建分值，确认 selected 差值为 `+48` 整数主分，即 `+9.6` 当前任务分，覆盖差值为 0。baseline selected 与 retained 字节一致；improved selected 与 raw 字节一致。
+The independent calculation rebuilt scores from source priorities and task durations. It confirmed a selected-plan gain of `+48` integer primary points, or `+9.6` task points under the current scale, with zero change in coverage. The baseline selected plan is byte-identical to retained. The improved selected plan is byte-identical to raw.
 
-improved 的 49 个净调整目标中，8 个从 120 秒升级为 240 秒，贡献全部增分；其余 41 个分值不变。没有时长或分值下降。
+Of the 49 net target adjustments in improved, eight upgraded tasks from 120 to 240 seconds and contributed the full score gain. The other 41 kept the same score. Both duration decreases and score decreases totaled zero.
 
-| 优先级 | 时长升级目标数 | 整数主分增量 |
+| Priority | Targets upgraded in duration | Integer primary score gain |
 | --- | ---: | ---: |
-| 高 | 1 | +10 |
-| 中 | 5 | +30 |
-| 低 | 2 | +8 |
-| 合计 | 8 | +48 |
+| High | 1 | +10 |
+| Medium | 5 | +30 |
+| Low | 2 | +8 |
+| Total | 8 | +48 |
 
-49 个调整目标按物理字段变化互斥分解如下；另有 131 个目标的这些字段均不变。
+The following mutually exclusive groups break down the 49 adjusted targets by physical field changes. Another 131 targets kept all these fields.
 
-| 变化字段 | 目标数 |
+| Changed fields | Targets |
 | --- | ---: |
-| 站点、开始、结束、时长 | 6 |
-| 站点、开始、结束 | 26 |
-| 开始、结束 | 13 |
-| 开始、结束、时长 | 2 |
-| 仅站点 | 2 |
-| 合计 | 49 |
+| Station, start, end, duration | 6 |
+| Station, start, end | 26 |
+| Start, end | 13 |
+| Start, end, duration | 2 |
+| Station only | 2 |
+| Total | 49 |
 
-因此，站点变化 34 个、开始和结束时刻变化各 47 个、时长及分值变化各 8 个；这些字段计数相互重叠。49 个调整不能表述为 49 个目标增分。与 baseline 的 0 个调整相比，本结果也不支持“扰动更小”的结论。
+In total, 34 targets changed station, 47 changed start time, 47 changed end time, and eight each changed duration and score. These field counts overlap. Eight of the 49 adjusted targets gained points, and baseline made zero adjustments.
 
-## 条件上界与几何含义
+## Conditional upper bound and geometry
 
-决策时刻已有 114 个完成目标及 4 个锁定目标，两组均保留它们，固定贡献为 `1666+70=1736`。剩余 62 个目标在冻结离散候选池中逐目标取可得最高分，其宽松合计为 1070；忽略它们之间的互斥约束可得整数主分条件松上界 `1736+1070=2806`。improved 的可行计划达到该上界。
+At the decision time, 114 targets were complete and four were locked. Both runs kept them, contributing `1666+70=1736` fixed integer points. For the remaining 62 targets, taking the highest available score per target in the frozen discrete candidate pool gives a relaxed total of 1070. Relaxing mutual-exclusion constraints between these targets gives the conditional upper bound `1736+1070=2806` for the integer primary score. The feasible improved plan attained it.
 
-这个结论限定于本固定历史、模型和冻结离散候选池。它不等价于整个全天初始问题的上界，不覆盖连续时间或未生成候选，也不能推出算法普遍最优。另一 H180_IMP 起点的初始分值 3000 不属于本配对比较。
+This result applies to the fixed history, model, and frozen discrete candidate pool. The bound covers the paired replanning problem and its generated discrete candidates. The full-day initial problem, continuous time, candidates outside the pool, and general algorithm optimality fall outside that scope. The initial score of 3000 for the separate H180_IMP starting plan also falls outside this pair.
 
-| 几何检查计数 | baseline | improved |
+| Geometry check count | baseline | improved |
 | --- | ---: | ---: |
-| 传播调用 | 360 | 360 |
-| 计划时间采样 | 39,060 | 40,020 |
-| 两路传播样本合计 | 78,120 | 80,040 |
+| Propagation calls | 360 | 360 |
+| Scheduled-time samples | 39,060 | 40,020 |
+| Combined samples across both propagation paths | 78,120 | 80,040 |
 
-计划时间采样按各任务的整数秒闭区间累计，即 `sum(duration+1)`。8 个任务各增加 120 秒，使总时长从 38,880 秒增至 39,840 秒，正好多 960 个计划采样；两路传播因此多 1,920 个样本。这些不是独立随机样本或全局互异时间点。
+The scheduled-time count includes both endpoints of each task's integer-second interval, giving `sum(duration+1)`. Adding 120 seconds to each of eight tasks raised total duration from 38,880 to 39,840 seconds, adding exactly 960 scheduled-time samples and 1,920 samples across the two propagation paths. The counts are per task and per propagation path, so they can include shared time points and do not represent independent random samples.
 
-执行时检查支持所用轨道模型下的双路一致性；本次只读复核未重新传播参考轨道。结果不构成真实轨道精度、折射、完整光学约束、窗口完备性、连续时间或现场观测认证。
+Execution-time checks established agreement across both paths under the orbit model used. The read-only review analyzed the saved results and performed zero new reference orbit propagation. Real-world orbital accuracy, refraction, full optical constraints, window completeness, continuous time, and on-site observation certification remain outside the validated scope.
 
-## 费用、末次返回与保护边界
+## Time accounting, final return, and protection scope
 
-| 计费位置（秒） | R33-C | R34 |
+| Accounted checkpoint (seconds) | R33-C | R34 |
 | --- | ---: | ---: |
-| 登记前已计入 W | 8.576 | 13.817 |
-| 保存 LEDGER 采样 | 163.3274467 | 227.7067175 |
-| 保存 parent 采样 | 163.741209 | 228.5667594 |
-| 保存 tool 采样 | 173.1593674 | 235.8957645 |
-| 外部交接的实际末次工具返回覆盖 | 177.011 | 238.9717645 |
+| Pre-registration time included in W | 8.576 | 13.817 |
+| Saved LEDGER sample | 163.3274467 | 227.7067175 |
+| Saved parent sample | 163.741209 | 228.5667594 |
+| Saved tool sample | 173.1593674 | 235.8957645 |
+| Coverage through the actual final tool return reported by the external handoff | 177.011 | 238.9717645 |
 
-W 包含前置模块加载及同步等待；R33-C 记录的模块加载为 5.303 秒。保存的连续计时账本可复算至各自保存采样。R34 另有外部终端采样 235.9102733 秒。
+W includes initial module loading and synchronization waits. R33-C recorded 5.303 seconds for module loading. The saved continuous timing ledgers support recalculation through each saved sample. R34 separately has an external terminal sample of 235.9102733 seconds.
 
-最后一行来自实际执行终端的交接证据，末次捕获退出均为 0；它不是已保存 parent 或 tool JSON 中的字段，不能以文件内证据替代。有限 PASS 依赖保存账本与这段外部返回证据共同成立。两轮各自低于 600 秒，不表示两轮合计或整个研发过程低于 600 秒，也不是整个聊天的墙钟时间。
+The final row comes from the execution terminal handoff. Both final captures exited with code 0. The evidence for final tool return comes from that external handoff, while the saved parent and tool JSON report their own samples. The limited passes depend on both the saved ledgers and final-return evidence. The 600-second limit applied to each round individually. The combined rounds, development time, and overall conversation wall time use different accounting boundaries.
 
-两轮执行时保存的保护结果均为 PASS，记录了 22,624 个历史文件、3 棵历史树及 3,950 项消费原件核对通过。此次审计完整复核保存的保护记录及其锚点，并直接重算实验副本中的源数据、产品和冻结文件哈希；未重新读取全部历史原件、消费原件或 3,935 个运行库原件，也未重新枚举历史树。不能把保存记录复核称为本次重新保护扫描。
+Saved execution-time protection results were PASS in both rounds, with 22,624 historical files, three historical trees, and 3,950 consumed originals verified. This audit fully reviewed the saved protection records and their anchors and recalculated hashes for source data, product files, and frozen files in experimental copies. The read-only review used these records and copies. A new scan of all historical originals, consumed originals, 3,935 runtime library originals, and historical trees fell outside its scope.
 
-## 当前完成度与公开证据
+## Coverage and public evidence
 
-新增 H180 native 矩阵跨轮完成 **2/4**：H180_BASE 的 baseline 与 improved 两组已通过；H180_IMP 起点的两组仍未完成。早期 R21 保持 PARTIAL，历史不确定计数不能由本次补写为精确值。R33 的 A/B 尝试仍为 BLOCKED。
+The additional H180 native matrix entries accounted for across rounds total **2/4**. Both H180_BASE methods passed. The two H180_IMP groups are still pending. The original R21 remains PARTIAL, and its historical count uncertainty still applies. The R33 A/B attempts remain BLOCKED.
 
-R33-C、R34 均未执行 seal、post 或 accept；R28 仍为 PARTIAL。本页是已完成子集的配对摘要，不是完整矩阵、正式迁移验收或最终成果提交。它也不支持统计显著性、独立随机重复、一般算法优越性或故障恢复收益的声明。
+R33-C and R34 performed zero seal, post, or accept operations. R28 remains PARTIAL. This page summarizes the completed pair. The full matrix, formal migration acceptance, and final delivery remain pending. The scope is one fixed case and supports conclusions about that pair only. Statistical significance, independent random repeats, general algorithm superiority, and fault recovery gains remain outside the evidence.
 
-以下仅列必要的私有证据入口 SHA-256，用于辨认本页审计对应版本；原始证据未随本页公开。摘要不发布本机路径、真实目标标识、轨道根数、完整清单或原始日志。
+The following SHA-256 digests identify the private evidence entry points for the audited version. Public disclosure is limited to the digests and this summary. The original evidence, local paths, real target identifiers, orbital elements, full manifests, and raw logs are held privately.
 
-| 证据入口 | SHA-256 |
+| Evidence entry point | SHA-256 |
 | --- | --- |
-| 配对预定协议 | `10adddc65d359517a80b89e06513e9d85d14d0a9d19daac4ad24eb9e59142549` |
-| 两组共有的产品身份记录 | `a174f6dc48129440eb1c1f7fe0f9ab8a0481cd8b5f2b53ad73a78f54ad5e6978` |
+| Preregistered pairing protocol | `10adddc65d359517a80b89e06513e9d85d14d0a9d19daac4ad24eb9e59142549` |
+| Product identity record shared by both groups | `a174f6dc48129440eb1c1f7fe0f9ab8a0481cd8b5f2b53ad73a78f54ad5e6978` |
 | R33-C FINAL_TOOL_OBSERVATION | `909ca98544a09699c0ea7d2da081b708ce0b3fc712d388b577de98c2898916fc` |
 | R34 FINAL_TOOL_OBSERVATION | `b99eaeaacd997e72ee53a731f4fe345adffbccec81c40f0a23a8769de3bb6bd4` |
 
-原有范围说明见 [无故障 native 验证](NO_FAULT_NATIVE.md)、[执行器资格](R27_EXECUTOR_QUALIFICATION.md) 与 [实验说明](../EXPERIMENTS.md)。公开与复核约定见 [贡献说明](../CONTRIBUTING.md)。
+For the original scope, see [no-fault native verification](NO_FAULT_NATIVE.md), [executor qualification](R27_EXECUTOR_QUALIFICATION.md), and [experiment records](../EXPERIMENTS.md). The [contribution guide](../CONTRIBUTING.md) covers publication and review.

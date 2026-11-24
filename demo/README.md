@@ -1,18 +1,18 @@
-# 离线实验回放
+# Offline Experiment Replay
 
-`template.html` 是生成器模板，页面数据由任务 CSV、独立校验报告及指标生成。将真实生成物留在 Git 忽略的 `outputs/`，包括 HTML、截图、目标和窗口 JSON。
+`template.html` is the generator template. The generator builds the page data from task CSV files, independent validation reports, and metrics. Keep real generated artifacts in the Git-ignored `outputs/` directory, including HTML, screenshots, and JSON files containing targets or windows.
 
-历史 E3/E4 结果的演示与截图命令见[源码仓库交接说明](https://github.com/zindigo321/space-object-observation-planner/blob/main/docs/IMPROVEMENT_DEMO_HANDOFF.md)。生成的 HTML 可直接在浏览器中离线打开。
+The [source repository handoff](https://github.com/zindigo321/space-object-observation-planner/blob/main/docs/IMPROVEMENT_DEMO_HANDOFF.md) contains demo and screenshot commands for the historical E3/E4 results. The generated HTML opens directly in a browser offline.
 
-## 生成合成演示
+## Generate the Synthetic Demo
 
-按[快速上手](../README.md#快速上手)安装依赖后，从仓库根目录执行。示例使用 06:00 UTC 开始的 1 小时合成窗口，包含站点 7 和 9。
+Install the dependencies from the [quick start](../README.md#quick-start), then run the commands from the repository root. The example uses a one-hour synthetic time window starting at 06:00 UTC and includes stations 7 and 9.
 
 ```powershell
 $py = (Resolve-Path '.venv/Scripts/python.exe').Path
 $out = 'outputs/demo_' + (Get-Date -Format 'yyyyMMdd_HHmmss_fff')
 & $py -X utf8 smoke_test.py --config configs/synthetic.yaml --out "$out/run"
-if ($LASTEXITCODE -ne 0) { throw '合成规划失败' }
+if ($LASTEXITCODE -ne 0) { throw 'Synthetic planning failed' }
 
 $summary = Get-Content 'configs/demo_synthetic.json' -Raw | ConvertFrom-Json
 $summary.cases[0].directory = "$out/run"
@@ -20,14 +20,14 @@ $summaryPath = Join-Path (Get-Location) "$out/summary.json"
 [System.IO.File]::WriteAllText($summaryPath, ($summary | ConvertTo-Json -Depth 5))
 
 & $py -X utf8 scripts/build_demo.py --summary $summaryPath --out "$out/html"
-if ($LASTEXITCODE -ne 0) { throw '演示生成失败' }
+if ($LASTEXITCODE -ne 0) { throw 'Demo generation failed' }
 Start-Process (Resolve-Path "$out/html/index.html").Path
 ```
 
-每次运行生成新的输出目录，并在其中保存指向本次运行的摘要。
+Each run creates a fresh output directory and saves a summary that points to that run.
 
-## 排查生成失败
+## Troubleshoot Generation Failures
 
-错误证据会生成可解释的 FAIL/BLOCKED 页面，并隐藏正常指标区域。生成器返回码：成功 0、无完整证据 3、证据内容不一致 2；已存在目录和源目录嵌套直接拒绝，不覆盖源证据。
+Invalid evidence produces a `FAIL` or `BLOCKED` page with a reason and hides the normal metrics. The generator exits with 0 on success, 3 when complete evidence is missing, or 2 when the evidence is inconsistent. It rejects existing output directories and paths nested under the source directory to protect the source evidence.
 
-可选自动浏览器测试使用本机 Node 24 与 Chrome/Edge，无 npm 依赖。它针对完整 E3/E4 页面；合成示例由 pytest 验证数据和状态。测试器通过本机 DevTools 接口加载 `file://` 页面，并启用离线网络条件；只为受控本地页面使用 `--no-sandbox --disable-gpu`，外层预算入口负责终止浏览器进程树。用户正常打开 HTML 无需这些启动参数。
+The optional automated browser test uses local Node.js 24 and Chrome or Edge without npm dependencies. It targets the complete E3/E4 page. Pytest checks the synthetic example's data and status. The browser test loads the `file://` page through a local DevTools interface and applies offline network conditions. It uses `--no-sandbox --disable-gpu` only for the controlled local page. The outer budget wrapper terminates the browser process tree. Open the generated HTML normally for manual viewing.

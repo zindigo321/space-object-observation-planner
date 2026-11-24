@@ -1,13 +1,13 @@
-# 待用户转发的简短草稿（未发送）
+# Short Messages for the User to Forward (Unsent)
 
-## 给1号
+## To Team Member 1
 
-标准窗口接收工具已准备好，请按targets.csv、stations.csv、windows.csv和metadata.json交付，并填写来源/版本与过滤清单。工具只读检查并生成配置，不改原始数据。请明确哪些夜间、受光、日月规避、天气、视场、跟踪、地形和站点可用性已合入窗口，以及ID/UTC精度和评分规则差异。当前尚未收到有明确来源的交付，实际试读待数据到位。说明：docs/TEAM1_DATA_INTAKE.md。
+The standard window intake tool is ready. Please deliver `targets.csv`, `stations.csv`, `windows.csv`, and `metadata.json` and record the source, version, and filtering checklist. The tool reads the data and generates configuration without changing the original files. Please specify which nighttime, target illumination, Sun and Moon avoidance, weather, field of view, tracking, terrain, and station-availability conditions the windows include, along with any differences in IDs, UTC precision, or scoring. The actual intake inspection is pending because a delivery with identified provenance has yet to arrive. See `docs/TEAM1_DATA_INTAKE.md`.
 
-## 给3号
+## To Team Member 3
 
-源码接入包基于稳定算法候选b0eb3b5，具体源码提交和SHA256见包内MANIFEST及包旁校验文件。解压后用自己的Python 3.11运行`python -X utf8 scripts/team3_run.py synthetic --out outputs/check_01`，会依次规划、独立评价和只读复查；每次换新目录。真实窗口先试读再运行windows模式，正式接入优先baseline。请按docs/templates/TEAM3_RECEIPT.md记录命令、0/2/3返回码和结果后本人确认；本机验证不代替你的确认。
+The source integration package is based on stable algorithm candidate `b0eb3b5`. See the package manifest and the adjacent checksum for the exact source commit and SHA-256. After extracting it, run `python -X utf8 scripts/team3_run.py synthetic --out outputs/check_01` with your Python 3.11 interpreter. It runs planning, independent evaluation, and a read-only recheck in order. Use a new directory every time. Inspect real windows before running windows mode and prefer baseline for formal integration. In `docs/templates/TEAM3_RECEIPT.md`, record your command, exit code 0, 2, or 3, and results, then confirm the outcome yourself. Our local verification is separate from your confirmation.
 
-## 给4号
+## To Team Member 4
 
-本地演示包可直接双击demo/index.html离线播放，包含三张截图、讲稿及E3/E4和E5独立表格。页面旧E4比较不同初始计划的整体流程，收益11.6；E5固定共同初始计划后172.4→182.0、收益9.6，覆盖相同、历史完整、历史TLE逐秒0违例，但净调整5→23。请注明这是固定场景冒烟任务分，不是正式赛事百分制或完整光学验证。本轮只做稳定接入交付，没有产生新的算法收益。
+Open `demo/index.html` in the local demo package for offline playback. It includes three screenshots, the script, and separate E3/E4 and E5 tables. The old E4 page compares whole workflows with different initial plans and shows a gain of 11.6 points. E5 uses a common fixed initial plan and changes the score from 172.4 to 182.0, a gain of 9.6 points. Coverage is equal, all history is preserved, and the historical per-second TLE validation found zero violations. Net adjustments rose from 5 to 23. Please describe the score as a smoke-test task score for a fixed scenario. Official percentage scores and full optical validation are outside that scope. This round delivered stable integration and recorded no new algorithm gain.

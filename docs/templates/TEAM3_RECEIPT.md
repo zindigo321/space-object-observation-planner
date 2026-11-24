@@ -1,22 +1,22 @@
-# 3号接入验收回执（请实际运行后填写）
+# Team 3 Integration Acceptance Receipt
 
-默认状态：PENDING_EXTERNAL / 未确认。此模板没有预填通过。
+Complete this template after running the workflows. The default status is `PENDING_EXTERNAL` and awaits confirmation.
 
-- 实际运行者、日期、机器/操作系统：待填
-- 源码包文件名、外置SHA256、MANIFEST.source_commit：待填
-- Python路径/版本、numpy/skyfield/sgp4/PyYAML版本：待填
-- 输入来源、data_version、四文件SHA256、选择站点/UTC时域：待填
-- 安装是否实际执行；已有环境或新环境：待填
+- Actual operator, date, machine, and operating system — to complete
+- Source package filename, external SHA-256, and `MANIFEST.source_commit` — to complete
+- Python path and version and versions of NumPy, Skyfield, sgp4, and PyYAML — to complete
+- Input source, `data_version`, four file hashes, and selected stations and UTC horizon — to complete
+- Whether installation ran, and whether the environment was new or existing — to complete
 
-| 工作流 | 实际命令 | 返回码 | 报告与任务路径 | 分数/覆盖/违例 | 状态 |
+| Workflow | Actual command | Exit code | Report and task paths | Score, coverage, and violations | Status |
 | --- | --- | --- | --- | --- | --- |
-| 合成接入 | 待填 | 未运行 | 待填 | 待填 | NOT_RUN |
-| 实际窗口接入 | 待填 | 未运行 | 待填 | 待填 | NOT_RUN |
-| 初始任务评价 | 待填 | 未运行 | 待填 | 待填 | NOT_RUN |
-| 故障评价 | 待填 | 未运行 | 待填 | 待填 | NOT_RUN |
-| 只读复查 | 待填 | 未运行 | 待填 | 输入/源是否不变待填 | NOT_RUN |
+| Synthetic integration | To complete | Not run | To complete | To complete | NOT_RUN |
+| Actual window integration | To complete | Not run | To complete | To complete | NOT_RUN |
+| Initial task evaluation | To complete | Not run | To complete | To complete | NOT_RUN |
+| Fault evaluation | To complete | Not run | To complete | To complete | NOT_RUN |
+| Read-only recheck | To complete | Not run | To complete | Record whether input and source stayed unchanged | NOT_RUN |
 
-- 权威targets/windows及初始计划由谁保存：待填
-- 0/2/3退出码如何接入上层：待填
-- 未确认规则、窗口过滤与评分口径：待填
-- 3号本人确认结论、日期及问题清单：待填，不能由2号本机试验代替
+- Custodian of authoritative targets, windows, and the initial plan — to complete
+- How exit codes 0, 2, and 3 map to upstream integration — to complete
+- Unconfirmed rules, window filters, and scoring definitions — to complete
+- Team 3's own outcome, date, and issue list — to complete independently of Team 2's local trial

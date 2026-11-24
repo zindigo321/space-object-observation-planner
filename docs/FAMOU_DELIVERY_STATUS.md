@@ -1,32 +1,32 @@
-# 2026-11-17 最终 FAMOU 交付状态
+# 2026-11-17 Final FAMOU Delivery Status
 
-本地正式实验矩阵 4/4；四组 seal、全新路径 post/读回及程序 accept 已通过。 百度端：待用户在百度伐谋测试。
+The local formal experiment matrix passed 4/4. Sealing, post and readback from a new path, and programmatic accept passed for all four cases. User testing on Baidu FAMOU remains pending.
 
-本轮从实际前次交付提交 `690eb12c66e2906d7596435e8a70823805f789f3` 建立隔离分支，科学基线为 `1e35f9575ba79bd0d25fdfe96f624dce2a4ff5a5`。最终提交写入包内 SOURCE_IDENTITY.json，原始 Git blob 白名单导出。没有用旧 main 的 09c12b9 替代。
+This round branched in isolation from the actual previous delivery commit `690eb12c66e2906d7596435e8a70823805f789f3`. The scientific baseline was `1e35f9575ba79bd0d25fdfe96f624dce2a4ff5a5`. The export used the original Git blob allowlist, and the final commit is recorded in the package's `SOURCE_IDENTITY.json`. The older `main` commit `09c12b9` was outside the selected baseline.
 
-planner/ 中只有运行保护 process_guard.py 改变；其余调度、候选生成、计分、历史和选择规则与科学基线逐字节相同。Windows 在成功、失败、超时三种终态都终止 Job 并确认 ActiveProcesses=0。POSIX 在清理前用 waitid/WNOWAIT 保留父进程 PID，再终止受控进程组；该系统路径未实测，不把模拟当作 Linux 验收。
+Within `planner/`, the sole change was the runtime guard `process_guard.py`. Scheduling, candidate generation, scoring, history, and selection rules match the scientific baseline byte for byte. On Windows, success, failure, and timeout all terminate the Job and verify `ActiveProcesses=0`. POSIX uses `waitid/WNOWAIT` to retain the parent PID before cleanup, then terminates the controlled process group. That path was simulated, and Linux acceptance remains pending.
 
-候选改为 solve(problem) 返回任务行。可信父进程控制准备40/求解30/写出20/评价80秒，合计受180秒外层截止限制；候选导入、求解和返回序列化均在30秒受控子进程内。所有后代结束后才固定CSV、独立评价。回执在启动前绑定执行副本的大小、SHA256、argv，执行后复核副本，原稿并发变化单列。
+The candidate interface now returns task rows from `solve(problem)`. The trusted parent controls 40 seconds for preparation, 30 for solving, 20 for writing, and 80 for evaluation, with an outer deadline of 180 seconds. Candidate import, solving, and return serialization run in a controlled 30-second subprocess. Once all descendants have exited, the parent fixes the CSV bytes and runs an independent evaluation. The receipt binds the execution copy's size, SHA256, and `argv` before launch. It rechecks the copy afterward and reports concurrent changes to the original separately.
 
-Windows虚拟环境的嵌套入口使用底层解释器的实际argv，并保留虚拟环境身份和父进程校验。请求argv与实际argv分别记录；失败的前两版ZIP及回归证据保留，最终验收只绑定最终ZIP。
+Nested entry points in Windows virtual environments use the underlying interpreter's actual `argv` and preserve virtual environment identity and parent process verification. The requested and actual `argv` are recorded separately. The two failed predecessor ZIPs and their regression evidence were preserved. Final acceptance applies to the final ZIP.
 
-| 正式实验组 | 状态 | retained / raw / selected J |
+| Formal experiment case | Status | retained / raw / selected J |
 | --- | --- | --- |
 | H180_BASE_baseline | PASS | [2758, 180] / [2758, 180] / [2758, 180] |
 | H180_BASE_improved | PASS | [2758, 180] / [2806, 180] / [2806, 180] |
 | H180_IMP_baseline | PASS | [3000, 180] / [2814, 180] / [3000, 180] |
 | H180_IMP_improved | PASS | [3000, 180] / [3000, 180] / [3000, 180] |
 
-BASE 配对 selected 主分增加48，覆盖仍180。IMP/baseline 的 raw2814 被保护为 selected3000。配对使用相同冻结起点、产品、计分和选择规则；合法平局保留原方案。包内独立可运行性复测不计为正式科学重复。
+The selected primary score for the BASE pair increased by 48, with coverage of 180 in both cases. For IMP/baseline, the selection guard retained 3000 over a raw score of 2814. Each pair used the same frozen starting point, product, scoring, and selection rules. A legal tie retains the original plan. Independent package retests verify that it runs and are accounted for separately from formal scientific repeats.
 
-末轮使用新绑定 58692dbe558b4ee98ebcb1810c99a07b，四次实时原生决策合计 27.472779 秒，低于原定80秒。词法声明复用与证明索引优化保留实时原生检查；宿主显式采用进程级HighQoS，同机另一任务继续保留。实际63分支、80/600秒预算和正式调用记录均在审计包。正式请求提交、消费、分发和回执确认各1次；终态后该绑定不可重放。
+The final round used the new binding `58692dbe558b4ee98ebcb1810c99a07b`. Four live native decisions took 27.472779 seconds in total, below the original 80-second budget. Lexical declaration reuse and proof-index optimization preserved live native checks. The host explicitly used process-level HighQoS and kept the other task on the same machine. The audit package contains records for the actual 63 branches, the 80/600-second budgets, and formal calls. Submission, consumption, distribution, and receipt acknowledgment of the formal request each occurred once. The binding is single-use after a terminal state.
 
-旧100个部署产品文件中92个与科学 Git blob 完全相同，8个 examples/synthetic CSV 仅CRLF转LF；科学Python与H180输入相同。宿主性能修复仅用于准入/执行控制，实际部署身份、原生权限检查、每次新epoch、56动作/63分支、四次决策和80/600秒预算的结果在审计包 attempts/ 与 FINAL_ACCEPTANCE.json 中；保留所有失败，不重放已消费请求。
+Of the previous 100 deployment product files, 92 match the scientific Git blobs exactly. Eight `examples/synthetic` CSVs differ only by CRLF-to-LF conversion. The scientific Python code and H180 input match. Host performance changes apply to admission and execution control. Actual deployment identities, native authorization checks, each new epoch, 56 actions and 63 branches, four decisions, and the 80/600-second budget results are recorded in the audit package's `attempts/` and `FINAL_ACCEPTANCE.json`. The archive retains all failures, and consumed requests are single-use.
 
-最终ZIP另在全新中文/空格目录及干净Windows CPython3.11环境验证。验收覆盖离线依赖、上传还原、合成和H180生产→独立评价→recheck、非法自报分、历史篡改、固定资产保护及完整回归。实际测试数量、日志、退出、计时绑定该ZIP的字节/SHA256，见包外 FINAL_ACCEPTANCE.json 与审计包 validation/final/ACCEPTANCE.json；本说明不提前认证未运行检查。
+The final ZIP was also verified from a new path containing Chinese characters and spaces in a clean Windows CPython 3.11 environment. Acceptance covered offline dependencies, upload restoration, synthetic and H180 production followed by independent evaluation and recheck, invalid self-reported scores, history tampering, fixed-asset protection, and full regression testing. Actual test counts, logs, exit codes, and timings are bound to the ZIP's bytes and SHA256. See the external `FINAL_ACCEPTANCE.json` and `validation/final/ACCEPTANCE.json` in the audit package for checks actually run.
 
-upload/、UPLOAD_LIST.csv、UPLOAD_BATCHES.md、FAMOU_START_PROMPT.txt 供百度公有云测试。先按清单上传全部文件，再粘贴开场Prompt；ZIP为本地交付载体。平台规则以用户实际页面为准，详见 famou/PLATFORM_GUIDE.md。上传还原不依赖原机盘符、本地审计宿主或受保护密钥。
+`upload/`, `UPLOAD_LIST.csv`, `UPLOAD_BATCHES.md`, and `FAMOU_START_PROMPT.txt` support Baidu public cloud testing. Upload all listed files, then paste the opening prompt. Use the ZIP for local delivery. Follow the platform rules shown in the live interface. See `famou/PLATFORM_GUIDE.md` for details. Restoration works independently of the original drive letter, local audit host, and protected keys.
 
-本轮实际系统范围为 Windows CPython3.11，离线wheel适用于该平台。POSIX、其他Python和百度端未实测；百度端状态固定为“待用户在百度伐谋测试”。H180为180目标、10站、24小时冻结实例；六天、10000目标、官方评分、现场验收不扩为本轮门槛。
+Actual system verification covered Windows with CPython 3.11, the target platform for offline wheels. POSIX, other Python versions, and Baidu FAMOU remain untested. The Baidu status is recorded as pending user testing on Baidu FAMOU. H180 uses a frozen 24-hour instance with 180 targets and 10 stations. Six-day runs, 10000 targets, official scoring, and on-site acceptance fall outside the gates for this round.
 
-AUDIT_PACKAGE.zip 保存历史包、新尝试、正式证据、性能计时、修复差异和最终包验证；包内manifest排除自身，ZIP哈希放包外回执。程序accept不代表用户本人签收。整体状态只能以真实门槛计算得到，缺项时仍交付审计ZIP并标明PARTIAL。
+`AUDIT_PACKAGE.zip` preserves historical packages, new attempts, formal evidence, performance timings, repair diffs, and validation of the final package. The internal manifest excludes its own bytes, and the ZIP hash is in the external receipt. Programmatic accept and the user's receipt are separate verification steps. The overall status follows the actual gates. When any gate is incomplete, deliver the audit ZIP with a PARTIAL status.

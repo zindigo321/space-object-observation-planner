@@ -1,9 +1,9 @@
-# 最终交付验证范围
+# Final Delivery Verification Scope
 
-- F02：合法快候选通过；真实睡眠 31.25 秒候选在 30 秒截止，退出 3，不能生成成功评价；总预算不能扩大求解预算。
-- F03：父进程成功、失败、超时三种终态，后台后代均结束；Windows 查询 Job ActiveProcesses=0。POSIX 分支无条件清理受控进程组；无实际环境则明确未实测。
-- F04：启动前保存执行副本字节数、SHA256、argv；执行后副本仍一致；执行期间原稿改变单列且不改变执行身份；副本自改必须失败。
-- 准入：分项计时；每次新 epoch；56 动作/63 分支；四次原生决策；准备 80 秒、整轮 600 秒等冻结预算保持。
-- 正式：仅新绑定和唯一请求运行 H180_IMP/improved；旧三组只读验证；四组比较、seal、全新路径 post/读回、程序 accept。
-- 包：最终 Git 白名单、冻结输入、依赖、上传还原；新中文空格目录和干净依赖；合成/H180 生产、独立评价、recheck；非法分数/历史篡改/固定输入保护；完整回归。
-- 归档：两个 ZIP 的成员、CRC、危险/重复路径、逐文件大小/SHA256、内外绑定；全部失败与历史证据保留；无密钥；百度端待用户测试。
+- F02. The legal fast candidate passes. A candidate that actually sleeps for 31.25 seconds is cut off at 30 seconds, exits with code 3, and cannot produce a successful evaluation. The total budget cannot increase the solve budget.
+- F03. Background descendants exit after parent success, failure, or timeout. Windows Job queries report `ActiveProcesses=0`. The POSIX branch always cleans up the guarded process group. Report when no POSIX environment was available for a live test.
+- F04. Record the executed copy's byte count, SHA-256, and argv before launch. Verify that the copy still matches after execution. Record changes to the original separately from the executed identity. A self-modifying executed copy must fail.
+- Admission. Record stage timings, use a new epoch per attempt, cover 56 actions and 63 branches, and make four native decisions. Preserve the frozen budgets, including 80 seconds for preparation and 600 seconds for the round.
+- Formal execution. Run H180_IMP/improved only with the new binding and unique request. Verify the other three groups read-only. Compare all four groups, seal the evidence, post it and read it back from a fresh path, and run programmatic acceptance.
+- Package. Check the final Git allowlist, frozen inputs, dependencies, and upload restoration. Use a fresh path with Chinese characters and spaces and install dependencies into a clean environment. Run synthetic and H180 generation, independent evaluation, and rechecks. Verify protection against invalid scores, history tampering, and fixed-input changes, then run the full regression suite.
+- Archives. Verify both ZIPs for members, CRCs, unsafe and duplicate paths, per-file sizes and SHA-256 values, and bindings within and outside the archives. Retain all failure and historical evidence. Exclude secrets. Baidu acceptance is pending user testing.

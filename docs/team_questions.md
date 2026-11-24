@@ -1,26 +1,26 @@
-# 给1号、3号的待确认清单
+# Open Questions for Team Members 1 and 3
 
-当前职责（2026-10-27）：用户已在同一机器接管原1/3/4号职责，AI辅助完成至第十三轮本机实验及独立审计。后续资料、规则和接收环境问题由用户统筹；不宣称其他成员本人、异机或设备现场验收。最新聚合结果见[当前状态](CURRENT_STATUS.md)。
+As of 2026-10-27, the user took over the roles of team members 1, 3, and 4 on the same machine. AI assisted with local experiments and independent audits through round 13. The user coordinates follow-up materials, rules, and receiving environments. The evidence covers this machine and does not establish acceptance by another team member, machine, or onsite device. See the [current status](CURRENT_STATUS.md) for the latest summary.
 
-接管前历史快照：1号交付 **PENDING_INPUT/NOT_RUN**，3号本人确认 **PENDING_EXTERNAL**；当时项目data/raw、data/processed为空，指定交接目录没有明确来源记录的1号数据。这不是当前职责等待条件，旧workflow字段不改写。官方参考和合成示例仍不冒充其他成员交付。
+The historical snapshot before the takeover recorded Team 1 delivery as **PENDING_INPUT/NOT_RUN** and Team 3 confirmation as **PENDING_EXTERNAL**. At that time, `data/raw` and `data/processed` were empty, and the designated handoff locations contained no Team 1 data with recorded provenance. Those statuses describe the earlier assignment, and the old workflow fields preserve that snapshot. Official reference data and synthetic fixtures have their own provenance.
 
-## 已完成与本轮工具
+## Completed Work and Tools
 
-E3多种子、E4较晚故障、离线Demo、E5共同初始计划对照和原子写入修复均已完成，历史记录在EXPERIMENTS/PROGRESS及对应交接文档。原“下一轮再做E3/E4和Demo”的安排已被这些实际结果更新。历史接入工具包括[稳定包](STABLE_HANDOFF.md)、[3号接入](TEAM3_INTEGRATION.md)与[1号只读试读](TEAM1_DATA_INTAKE.md)。第四至十三轮已另行完成；原生无故障退化保护、有限同源规模及跨日敏感性已有本机证据。下一轮十站对照仅计划，接收环境及正式材料仍需分别验收，详见当前状态和[原生接口](NO_FAULT_NATIVE.md)。以下legacy/故障接入问题继续保留。
+The E3 multi-seed runs, E4 late fault, offline demo, E5 comparison with a common initial plan, and atomic write fix were completed. See `EXPERIMENTS.md`, `PROGRESS.md`, and the corresponding handoff documents. These results supersede the old plan to do E3/E4 and the demo in a later round. Historical integration tools include the [stable kit](STABLE_HANDOFF.md), [Team 3 integration](TEAM3_INTEGRATION.md), and [Team 1 read-only intake](TEAM1_DATA_INTAKE.md). Rounds 4–13 were completed separately. Local evidence covers native no-fault regression protection, limited scaling from a common source, and sensitivity across days. The next ten-station comparison remained planned. Receiving environments and formal materials still required separate acceptance. See the current status and the [native interface](NO_FAULT_NATIVE.md). The following legacy and fault integration questions remain open.
 
-## 数据生产职责 原1号
+## Data Production (Formerly Team Member 1)
 
-1. 提供交付人、时间、目录、版本及来源记录；填写[接收清单](templates/TEAM1_DELIVERY.md)。是否采用现有三个CSV与metadata JSON？
-2. ID是否为正十进制，是否需要Alpha-5/其他映射？UTC整秒、时域、站点及优先级有哪些差异？不同精度/时区先确认适配，不静默转换。
-3. 分别说明仰角、夜间、目标受光、日月规避、天气、视场、跟踪速度、地形、站点可用性是否合入窗口，未合入条件由谁提供什么字段/单位。
-4. 确认几何窗口含端点、资源半开区间、短于120秒保留但不生成候选；重叠窗口不代表并行能力。
+1. Provide the sender, timestamp, directory, version, and provenance record in the [intake checklist](templates/TEAM1_DELIVERY.md). Will the delivery use the existing three CSV files and metadata JSON?
+2. Are IDs positive decimal integers, and is Alpha-5 or another mapping required? Confirm any differences in UTC precision, horizon, stations, or priorities. Agree on adapters for different precision or time zones before converting anything.
+3. For elevation, nighttime, target illumination, Sun and Moon avoidance, weather, field of view, tracking speed, terrain, and station availability, specify whether the windows include each condition. For any excluded condition, identify who provides it and document its fields and units.
+4. Confirm that geometric windows include their endpoints, resource occupancy uses half-open intervals, and windows shorter than 120 seconds are retained without producing candidates. Confirm that overlapping windows do not imply parallel station capacity.
 
-## 接入与评价职责 原3号
+## Integration and Evaluation (Formerly Team Member 3)
 
-1. 运行源码包合成及标准窗口流程，确认Python 3.11、标准任务CSV、独立评价/复查、0/2/3返回码与上层接入方式。按[回执模板](templates/TEAM3_RECEIPT.md)记录实际机器、版本、输入、命令和产物。
-2. 评价方是否独立保存权威targets/windows和原始初始计划？故障完成/锁定/中断必须由其推导，不能由规划器自报替换。
-3. 正式接入优先baseline，已有改进both可选；是否需要不同的数据运输/字段接口，请基于实际回执说明。
+1. Run the synthetic and standard window flows from the source package. Confirm Python 3.11, the standard task CSV, independent evaluation and recheck, exit codes 0, 2, and 3, and upstream integration. Record the machine, version, inputs, commands, and artifacts in the [receipt template](templates/TEAM3_RECEIPT.md).
+2. Does the evaluator independently retain the authoritative targets, windows, and original initial plan? The evaluator must derive completed, locked, and interrupted cases from the fault and initial plan.
+3. Use baseline first for formal integration. The existing improved method is available through `both`. Use the actual receipt to identify any need for a different data transport or field interface.
 
-## 团队规则仍待确认
+## Team Rules Pending Confirmation
 
-每目标全站最多一次成功；120/240秒对应60%/100%；高/中/低5/3/2；切换30秒；中断零分但可重做；窗口端点和资源半开区间。目前是冒烟假设，不代替正式规则，两套正式评分口径仍未统一。旧额外复评保持BLOCKED。已有同源60/180相关规模及同60目标跨日敏感性；完整十站六天/10000目标、独立来源、完整光学设备、真实数据全量异机移交和官方评分仍未验证。现有环境本机运行不代替新接收环境验收；合成输入的云端安装结果以对应Actions为准。
+Each target may succeed once across all stations. The 120- and 240-second durations earn 60% and 100%, and high, medium, and low priority maximum scores are 5, 3, and 2. Switching targets takes 30 seconds. Interrupted tasks score zero and may be retried. Geometric windows are closed and resource occupancy is half-open. These are smoke-test assumptions pending formal confirmation. The two official scoring definitions have yet to be reconciled. The legacy optional evaluator remains `BLOCKED`. Existing evidence covers 60- and 180-target samples from the same source and cross-day sensitivity on the same 60 targets. The full ten-station, six-day, 10,000-target scenario, independent sources, full optical equipment, real-data transfer and operation on another machine, and official scoring remain unverified. Local runs in the existing environment and acceptance in a new receiving environment are separate. See the corresponding Actions run for cloud installation of the synthetic example.

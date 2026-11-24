@@ -1,153 +1,153 @@
-# 当前阶段状态
+# Current Project Status
 
-## 2026-11-18 S02 产品验收
+## 2026-11-18 S02 Product Acceptance
 
-已验收的正式产品提交为 `6aacb4a64d5b32d388c7ecbcad7ae361bb31b29d`。冻结实例为 1800 个目标、10 个观测站、24 小时。从最终产品 ZIP 解压并离线安装后，冷生产完成 1800/1800，生成 68,069 个窗口和 1,177,265 条保留候选。初始规划 2/2、无故障重排 4/4 均通过独立评价及只读复查。
+The accepted production commit is `6aacb4a64d5b32d388c7ecbcad7ae361bb31b29d`. The frozen instance covers 1800 targets, 10 observation stations, and 24 hours. After extracting the final product ZIP and installing its dependencies offline, cold generation completed for 1800/1800 targets and produced 68,069 windows and 1,177,265 retained candidates. Independent evaluation and read-only rechecks passed for 2/2 initial planning cases and 4/4 fault-free replanning cases.
 
-六组实际加载包内 DLL，正常求解耗时 7.04–8.91 秒。30 秒求解硬限、超时后代清理和遗留提案拒绝通过验证。最终 ZIP 解压环境和上传还原环境各 302 项回归通过，H180 四组的 12 份任务表与原验收逐字节一致。
+All six cases loaded the packaged DLL. Normal solves took 7.04–8.91 seconds. Verification covered the 30-second hard solve limit, descendant cleanup after timeout, and rejection of leftover proposals. All 302 regression tests passed in each of the two environments, one extracted from the final ZIP and one restored from uploads. The 12 task tables for the four H180 cases matched the original acceptance byte for byte.
 
-实际验收平台为 Windows 11 x64、64 位 CPython 3.11.17。**百度伐谋端待验收。** S02 故障重排、10000 目标连续 6 天及跨来源算法普遍优势仍待验证。运行入口见[合成示例](../README.md#快速上手)和[正式产品运行手册](../famou/RUNBOOK.md)。
+Acceptance ran on Windows 11 x64 with 64-bit CPython 3.11.17. **Baidu FAMOU acceptance remains pending.** S02 fault replanning, 10000 targets over six continuous days, and broad algorithmic advantages across data sources remain unverified. See the [synthetic example](../README.md#quick-start) and the [release runbook](../famou/RUNBOOK.md) for the entry points.
 
-## 2026-11-17 H180 正式验收
+## 2026-11-17 Formal H180 Acceptance
 
-四组正式实验矩阵、seal、全新路径 post/读回及程序 accept 均通过。[H180 交付记录](FAMOU_DELIVERY_STATUS.md)
+All four cases in the formal experiment matrix passed sealing, post and readback from a new path, and programmatic accept. See the [H180 delivery record](FAMOU_DELIVERY_STATUS.md).
 
-## R35 预审及此前状态
+## R35 Preliminary Review and Earlier Status
 
-截至 R35 预审，H180 跨轮原生验收仍为 2/4，H180_IMP 的 baseline 和 improved 两组尚未完成。R35-A、R35-B 为 BLOCKED；R35-C 尚未启动，正在确认运行端允许范围。R28 仍为 PARTIAL，正式证据交付与接收尚未闭合。
+As of the R35 preliminary review, H180 native acceptance across rounds remained at 2/4. The H180_IMP baseline and improved cases were still pending. R35-A and R35-B were BLOCKED. R35-C had yet to start while the execution environment's permitted scope was being confirmed. R28 remained PARTIAL, with formal evidence delivery and receipt still open.
 
-更新日期：2026-11-02。最新为R34_H180_BASE_IMPROVED_PASS，仅覆盖H180_BASE/improved、t3600单组。与已通过的R33-C baseline同起点配对，selected J为(2758,180)对(2806,180)，增加48整数分，即当前任务分口径9.6分，覆盖均180。improved达到本固定历史与离散候选池下2806条件主分松上界；不作一般最优、故障专属收益或官方评分推断。详见[H180同起点配对](R33_R34_H180_BASE_PAIR.md)。
+Updated 2026-11-02. The latest result at that point was R34_H180_BASE_IMPROVED_PASS for the single H180_BASE/improved case at t3600. The accepted R33-C baseline case used the same starting point. Selected J increased from (2758,180) to (2806,180), gaining 48 integer points, or 9.6 points on the current task scale. Both covered 180 targets. The improved method reached the loose conditional upper bound of 2806 for the primary score under this fixed history and discrete candidate pool. General optimality, fault-specific gains, and official scoring are outside the scope of this result. See the [H180 same-start pair](R33_R34_H180_BASE_PAIR.md).
 
-R20共同输入交付INPUT_DELIVERY_PASS保留；R21原轮仍PARTIAL、native0/4，跨轮新增验收目前native2/4，IMP起点两组未完成。R22/R23仍PARTIAL，R24–R26-A/B仍BLOCKED。R27资格通过，R28技术seal/post/accept成功但整轮PARTIAL；R29/R30、R32、R33-A/B仍BLOCKED，R31仅启动计时资格通过。后续成功不追改旧失败，R33-C/R34未执行seal/post/accept。
+R20 shared input delivery retains INPUT_DELIVERY_PASS. The original R21 round remains PARTIAL with native acceptance at 0/4. Subsequent rounds brought cross-round native acceptance to 2/4, with both IMP-starting cases still open. R22 and R23 remain PARTIAL, and R24 through R26-A/B remain BLOCKED. R27 passed qualification. R28 passed the technical seal/post/accept chain and remained PARTIAL overall. R29, R30, R32, R33-A, and R33-B remain BLOCKED. R31 passed startup timing qualification only. Original failures remain attributed to their rounds. R33-C and R34 recorded zero seal/post/accept runs.
 
-此前R19证据恢复：恢复复核、正式封存、恢复执行版本和第二新路径独立验收均PASS，新增schedule／原生backend／TLE传播均为0。原R18仍为数据PASS、封存FAIL、执行版本封存验收BLOCKED、整体PARTIAL；R15 PARTIAL、R16 BLOCKED及原失败记录保留。
+In R19, evidence recovery review, formal sealing, recovery of the execution version, and independent acceptance from a second new path all returned PASS. New schedule runs, native backend calls, and TLE propagations each totaled zero. The original R18 remains data PASS, sealing FAIL, sealed execution-version acceptance BLOCKED, and overall PARTIAL. The R15 PARTIAL and R16 BLOCKED statuses and original failure records also remain.
 
-R14至R18真实计算使用已发布commit `83d3014c7d030b314320b36682f27e9cc1d0d6a6` 的98文件源码。R11至R13的旧97文件开发树与提交前父端收尾修订仍属不同版本，不能追溯混用。R20则绑定b0e6461的完整99文件树，生产模块与旧版一致；不硬套旧98文件总数。本文只同步公开聚合事实；[R19恢复记录](R19_RECOVERY_STATUS.md)与[R20输入交付](R20_INPUT_DELIVERY.md)分别说明范围，不发布真实输入或完整恢复包。
+The actual calculations in R14 through R18 used the 98-file source at published commit `83d3014c7d030b314320b36682f27e9cc1d0d6a6`. The earlier 97-file development tree and the pre-commit parent wrap-up revision in R11 through R13 are distinct versions. R20 is bound to the complete 99-file tree at `b0e6461`, with production modules matching the prior version. This document reports public aggregate facts. See the [R19 recovery record](R19_RECOVERY_STATUS.md) and [R20 input delivery](R20_INPUT_DELIVERY.md) for their scopes. Real inputs and the full recovery package are kept locally.
 
-## 程序与本机验收
+## Software and Local Acceptance
 
-已修复源码交付白名单以及历史故障路径在只读评价和复查中的兼容问题，调度算法和计分方法沿用冻结版本。历史源码及解压包回归为149项通过、零失败和零跳过；本次文档同步后的实际回归及GitHub Actions状态以对应运行和PR检查为准，不将历史测试冒充本次运行。
+Source delivery allowlisting and compatibility with historical fault paths during read-only evaluation and recheck were fixed. Scheduling and scoring use the frozen algorithms. The historical source and extracted-package regression passed 149 tests, with zero failures and zero skips. Use the relevant run and PR checks for regression and GitHub Actions results following this documentation update.
 
-用户已在同一机器接管原1/3/4号职责，AI辅助执行及独立审计。当前新增H180_BASE两方法单组验收，不宣称其他成员本人、另一台机器或设备现场验收。旧workflow中的PENDING_EXTERNAL等字段保持原样。本次只更新五份公开文档，真实运行仍绑定1e35f9575ba79bd0d25fdfe96f624dce2a4ff5a5的100文件产品树，不以新文档提交替代实际执行身份。
+The user assumed the former roles of team members 1, 3, and 4 on the same machine, with AI-assisted execution and independent audit. Each of the two H180_BASE methods adds one accepted case on that machine. Acceptance by other members, on another machine, or at the equipment site falls outside this scope. Existing workflow fields such as PENDING_EXTERNAL retain their original values. The original update covered five public documents, while actual runs remained bound to the 100-file product tree at `1e35f9575ba79bd0d25fdfe96f624dce2a4ff5a5`.
 
-| 阶段 | 已完成工作 | 状态与范围 |
+| Round | Work completed | Status and scope |
 | --- | --- | --- |
-| 第一轮 | 60目标、3站、24小时、563窗口的冷生产与四表来源链 | 原整体BLOCKED/strict FAIL保留；特定版本后来获准只读消费 |
-| 第二轮 | 固定版本接入、整套初始与故障流程比较 | PASS；供应窗口范围，初始计划不同 |
-| 第三轮 | 离线回放、五页Word/PDF及便携材料 | 本机验收通过；仍属当时批次 |
-| 第四轮 | A/B两个固定初始起点的同起点配对 | 独立审计通过；各方法分差9.6分，供应窗口范围 |
-| 第五轮 | 本地报告修订及四文档候选 | 未新增调度实验；旧候选不用于覆盖后续状态 |
-| 第六轮 | 六故障、两起点的12组比较与24份方案 | 独立审计通过；供应窗口范围 |
-| 第七轮 | 8份真实无故障控制及12组匹配 | 独立审计通过；共享控制不当独立重复 |
-| 第八轮 | 两个新的互斥60目标样本，20计划及三层检查 | 独立审计通过；实际成功任务新增原始TLE逐秒几何检查 |
-| 第九轮 | 隔离无故障保护选择器及已知退化/平局案例 | 已知案例通过；未正式接入 |
-| 第十轮 | no-fault、evaluate-no-fault及原生recheck | 16原生键通过；252项历史回归 |
-| 第十一轮 | 最终求解准入、父子绝对deadline、调用计数及双补丁 | 重执行通过；280项历史回归，原失败单列 |
-| 第十二轮 | 新180目标及嵌套60目标的相关规模 | 8键/12求解/24外检/12几何；真实运行新路径迁移 |
-| 第十三轮 | 固定60目标的两个新模型日及龄期敏感性 | 8键/12求解/24外检/12几何；两个跨日错配负例 |
-| 第十四轮 | 同日60目标、三站／十站共享初始对照 | 矩阵通过；8键、10次schedule、22＋2外检、10几何；历史seal终端和部分墙钟披露限制保留 |
-| 第十五轮 | 十站连续链首次尝试 | PARTIAL；4个t2原生成功，检查器误拒，完整节点0/8，t3阻塞 |
-| 第十六轮 | 检查器修复与预检 | BLOCKED；预备超限、零真实调用；运行脚本版本溯源限制保留 |
-| 第十七轮 | 修订控制层后完整连续状态链 | 数据／封存／执行版本PASS；8节点，8次schedule，28外检，8新几何 |
-| 第十八轮 | 十站空历史initial与t3600重排 | 数据PASS；2initial＋4native，封存失败，整体PARTIAL |
-| 第十九轮 | 只读恢复R18证据与新包封存、独立迁移 | 四项恢复PASS；零新求解，不升级R18原状态 |
-| 第二十轮 | H180×十站、Aug05共同输入生产与交付 | INPUT_DELIVERY_PASS；6709窗口、116223候选；零调度，不记算法实验PASS |
-| 第二十一轮 | H180 initial＋native尝试 | PARTIAL；2/6通过，native0/4；backend旧启动区间[5,7]保留 |
-| 第二十二、二十三轮 | 恢复证据、读回路径与监督修订 | 均PARTIAL；资格局部通过不替代正式post接受 |
-| 第二十四、二十五轮 | 读取身份、Job监督与完整链准备 | 均BLOCKED；完整资格未执行 |
-| 第二十六轮A/B | 启动收束与资格准备再尝试 | 均BLOCKED；B的12项Job局部检查通过，完整资格未执行，保护截止未完成 |
-| 第二十七轮 | 真实post/FileAudit/原accept完整资格 | EXECUTOR_QUALIFICATION_PASS；正式seal/post0，零新增求解／传播 |
-| 第二十八轮 | 正式seal/post/accept技术链 | 各一次、退出0，18负例、两层审计和保护通过；登记前完整计时证据缺失，整体PARTIAL |
-| 第二十九、三十轮 | 启动顺序门禁 | 均BLOCKED；登记前读取不能补造为合格起点 |
-| 第三十一轮 | 首工具登记的启动计时资格 | 30项通过，两个小命令退出0/7，业务0；不记算法实验 |
-| 第三十二轮 | native运行准备 | BLOCKED、组未启动；准备151.434秒超过80秒门限，收尾失败，最小留档702.082秒 |
-| 第三十三轮A/B | 启动状态及权限尝试 | 均BLOCKED；B缺业务计数和完整保护证据，不冒报零调用 |
-| 第三十三轮C | H180_BASE/baseline、t3600 | 单组PASS，selected(2758,180)，KEEP_RETAINED_TIE，净调整0 |
-| 第三十四轮 | H180_BASE/improved、t3600 | 单组PASS，selected(2806,180)，ACCEPT_CANDIDATE_STRICTLY_BETTER，净调整49 |
+| 1 | Cold generation for 60 targets, 3 stations, 24 hours, and 563 windows, with provenance for four tables | Original overall BLOCKED / strict FAIL. A specific version later received read-only consumption approval |
+| 2 | Integration at a fixed version and comparison of the full initial planning and fault workflows | PASS within supplied windows. The initial plans differed |
+| 3 | Offline playback, a five-page Word/PDF report, and portable materials | Local acceptance passed for that batch |
+| 4 | Same-start comparisons from the two frozen A/B initial plans | Independent audit passed. The method gaps were 9.6 points each, within supplied windows |
+| 5 | Local report revision and four draft documents | Zero new scheduling experiments. The drafts represent this round |
+| 6 | 12 comparisons and 24 plans across six faults and two starting points | Independent audit passed within supplied windows |
+| 7 | 8 real fault-free controls and 12 matched comparisons | Independent audit passed. Trials with shared controls are dependent |
+| 8 | Two new disjoint 60-target samples, 20 plans, and three verification layers | Independent audit passed. Successful tasks received new per-second geometry checks against the original TLEs |
+| 9 | Isolated fault-free selection guard and known regression/tie cases | Known cases passed. Formal integration was pending |
+| 10 | no-fault, evaluate-no-fault, and native recheck | 16 native keys passed. 252 historical regression tests |
+| 11 | Final solve admission, absolute parent-child deadlines, call counts, and two patches | Rerun passed. 280 historical regression tests. The original failure is recorded separately |
+| 12 | Related scales using 180 new targets and a nested set of 60 | 8 keys / 12 solves / 24 external checks / 12 geometry checks. Actual migration to a new path |
+| 13 | Two new model days and element-age sensitivity for 60 fixed targets | 8 keys / 12 solves / 24 external checks / 12 geometry checks. Two cross-day mismatch negative cases |
+| 14 | Same-day 60-target comparison across three and ten stations with shared initial plans | Matrix passed. 8 keys, 10 schedule runs, 22 + 2 external checks, and 10 geometry checks. Historical sealing terminal and partial wall-time disclosure limitations apply |
+| 15 | First attempt at a ten-station continuous chain | PARTIAL. Four native t2 runs succeeded and were wrongly rejected by the verifier. Complete nodes 0/8, with t3 blocked |
+| 16 | Verifier repair and preflight | BLOCKED. Preparation exceeded the limit, with zero actual calls. Run-script provenance limitations apply |
+| 17 | Complete continuous state chain following control-layer revision | Data, sealing, and execution version PASS. 8 nodes, 8 schedule runs, 28 external checks, and 8 new geometry checks |
+| 18 | Ten-station initial plans with empty histories and replanning at t3600 | Data PASS. 2 initial and 4 native runs, sealing FAIL, overall PARTIAL |
+| 19 | Read-only recovery of R18 evidence, new-package sealing, and independent migration | All four recovery checks PASS. Zero new solves. Original R18 status remains |
+| 20 | Production and delivery of shared Aug05 input for H180 across ten stations | INPUT_DELIVERY_PASS. 6709 windows, 116223 candidates, and zero scheduling runs. Acceptance covers input delivery |
+| 21 | H180 initial and native attempts | PARTIAL. 2/6 passed, native 0/4. The original backend start range remains [5,7] |
+| 22, 23 | Recovery evidence, readback paths, and supervision revisions | Both PARTIAL. Qualification passed only in part, and formal post acceptance was outstanding |
+| 24, 25 | Read identity, Job supervision, and preparation for the full chain | Both BLOCKED. Full qualification was not run |
+| 26-A/B | Another attempt to finalize startup and prepare qualification | Both BLOCKED. B passed 12 partial Job checks. Full qualification did not run, and protection was unfinished at the deadline |
+| 27 | Full qualification with actual post, FileAudit, and original accept | EXECUTOR_QUALIFICATION_PASS. Zero formal seal/post runs and zero new solves or propagation calls |
+| 28 | Technical chain for formal seal/post/accept | One run each, exit code 0. All 18 negative cases, two audit layers, and protection checks passed. Overall PARTIAL because complete pre-registration timing evidence was missing |
+| 29, 30 | Startup sequence gate | Both BLOCKED. Reads preceded registration, so the starting points were ineligible |
+| 31 | Startup timing qualification with first-tool registration | 30 checks passed. Two short commands exited 0/7. Zero production operations, with qualification the scope of the round |
+| 32 | Native run preparation | BLOCKED. The case did not start. Preparation took 151.434 seconds and exceeded the 80-second gate. Wrap-up failed, with a minimum recorded total of 702.082 seconds |
+| 33-A/B | Startup state and permissions attempts | Both BLOCKED. B lacked production call counts and complete protection evidence |
+| 33-C | H180_BASE/baseline at t3600 | Single-case PASS, selected (2758,180), KEEP_RETAINED_TIE, 0 net adjustments |
+| 34 | H180_BASE/improved at t3600 | Single-case PASS, selected (2806,180), ACCEPT_CANDIDATE_STRICTLY_BETTER, 49 net adjustments |
 
-第一轮的保护失败来自共享历史容器新增其他任务子树，既有文件未修改。原失败、后续特定版本只读批准及其他轮次PASS分别保留，不追溯改写。真实数据及完整机器证据继续留在本地。
+The first round's protection check failed because another task added a subtree to the shared history container. Existing files matched their original bytes. The original failure, subsequent approval for read-only use of the specific version, and other rounds' PASS results are recorded separately. Real data and complete machine evidence are kept locally.
 
-## 故障差距与无故障控制
+## Fault Gaps and Fault-Free Controls
 
-第二轮baseline初始/故障后为173.2/172.4分，improved为184.0/184.0分；两方法初始不同，故障后11.6分差属于整套流程比较。第四轮A/B分别共享一个初始、事件及机会集，各有9.6分方法差；调整数量baseline到improved分别5到23和33到18，不支持普遍降低扰动。
+In round 2, baseline scored 173.2 initially and 172.4 after the fault. Improved scored 184.0 initially and 184.0 after the fault. The initial plans differed, so the post-fault gap of 11.6 points compares full workflows. In round 4, the two methods shared an initial plan, event, and opportunity set within each of A and B. Each pair had a method gap of 9.6 points. From baseline to improved, adjustment counts rose from 5 to 23 for A and fell from 33 to 18 for B. The direction depended on the starting point.
 
-第六轮故障方法分差4.0至10.8分，A/B固定网格均值7.4和约8.2667分。第七轮无故障控制方法差为A的8.8/6.8及B的10.0/7.6分（00:30/02:00）。12组匹配中improved的F−C全部0，baseline为−1.2至+2.8；交互为−2.8至+1.2，3正、3零、6负。这表明方法差距在无故障主动重排时已存在，不能把故障场景全部分差解释为故障专门收益。
+Round 6 fault method gaps ranged from 4.0 to 10.8 points. Means on the fixed grid were 7.4 for A and about 8.2667 for B. In round 7, the fault-free control gaps were 8.8 and 6.8 for A and 10.0 and 7.6 for B at 00:30 and 02:00, respectively. Across 12 matched cases, F−C was 0 for every improved case and ranged from −1.2 to +2.8 for baseline. The interaction ranged from −2.8 to +1.2, with 3 positive, 3 zero, and 6 negative values. Method gaps were already present in proactive fault-free replanning, so the full gap in a fault scenario cannot be attributed to a fault-specific benefit.
 
-## 第八轮新目标样本
+## Round 8 New Target Samples
 
-本节实验日期及时刻均为UTC。
+All dates and times in this section use UTC.
 
-历史排除集181个目标。H1/H2各60、每档20，与封存排除清单及彼此无重叠；预先固定SHA256分层排序，不按可见性或分数换样。两组使用同一份原料、2026年8月3日全天和三个站点；H1为544窗口/9192候选，H2为564窗口/10101候选，均有58个可执行目标。两个样本不是跨日期或跨历元验证。
+The historical exclusion set contained 181 targets. H1 and H2 each had 60 targets, with 20 per tier. Both were disjoint from the sealed exclusion list and from each other. The SHA256-based stratified ordering was fixed in advance, independent of visibility and scores. Both used the same source data, all of August 3, 2026, and three stations. H1 contained 544 windows and 9192 candidates, and H2 contained 564 windows and 10101 candidates. Each had 58 executable targets. Both samples cover a single date and epoch.
 
-每组baseline/improved初始分别冻结为A/B，在02:00分别进行无故障主动重排C，以及站1于02:00至04:00停机的F；同组同起点同臂的两方法共享全部条件。
+For each sample, initial baseline and improved plans were frozen as A and B. At 02:00 each starting point used proactive fault-free replanning for C and a station 1 outage from 02:00 to 04:00 for F. The methods shared all conditions within each sample, starting point, and arm.
 
-| 样本 / 起点 | 冻结初始分 | C baseline | C improved | F baseline | F improved | 交互 |
+| Sample / starting point | Frozen initial score | C baseline | C improved | F baseline | F improved | Interaction |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
 | H1 / A | 183.6 | 183.6 | 189.2 | 183.6 | 189.2 | 0.0 |
 | H1 / B | 196.0 | 189.2 | 196.0 | 189.2 | 196.0 | 0.0 |
 | H2 / A | 175.2 | 175.2 | 183.6 | 175.2 | 183.6 | 0.0 |
 | H2 / B | 192.0 | 180.8 | 192.0 | 179.6 | 192.0 | +1.2 |
 
-G故障为5.6、6.8、8.4、12.4分，G无故障为5.6、6.8、8.4、11.2分，G均定义为improved减baseline；交互为G故障减G无故障。全部有符号差先按整数points计算，再除5。共享C/F及A/B起点不当独立随机重复，不报告显著性、普遍因果或可归因比例。
+The fault gaps were 5.6, 6.8, 8.4, and 12.4 points. The fault-free gaps were 5.6, 6.8, 8.4, and 11.2 points. Each gap G is improved minus baseline. Interaction is the fault gap minus the fault-free gap. Signed differences were calculated first in integer points and then divided by 5. Shared C/F conditions and A/B starting points make these dependent comparisons. The report is limited to descriptive results for these cases. Statistical significance, general causal effects, and attributable fractions are outside its scope.
 
-20份方案全部覆盖58/60及58/58，零违例。20份独立规则/历史检查、20次原CLI评价及20份原始TLE逐秒几何报告实际通过；两负例、独立复算、保护和清单通过。C的CLI及几何检查只消费status改为success的投影，真实历史另由外部独立检查器验收；F使用真实事件、冻结初始及中断证据。
+All 20 plans covered 58/60 targets overall and 58/58 executable targets and had zero violations. All 20 independent rule and history checks, 20 original CLI evaluations, and 20 per-second geometry reports using the original TLEs passed. The two negative cases, independent recomputation, protection checks, and manifest checks also passed. For C, the CLI and geometry checks consumed a projection with status set to success. An independent external verifier accepted the actual history separately. F used the actual events, frozen initial plans, and interruption evidence.
 
-四份冻结初始在故障时刻均无站1在途任务，本轮实际非空中断片段为0。20份几何报告新增验证的是实际成功任务，不代表本轮对非空中断片段重新做了逐秒几何实测。逐秒检查包含整秒端点，不等于连续时间或完整光学设备认证。
+At the fault time, none of the four frozen initial plans had a station 1 task in progress, so this round included zero nonempty interrupted segments. The 20 new geometry reports covered successful tasks. Per-second checks include whole-second endpoints. Continuous-time and full optical equipment certification remain outside that scope.
 
-## 原生无故障保护与历史退化
+## Native Fault-Free Guard and Historical Regressions
 
-第八轮baseline在H1/B、H2/B的无故障重排相对冻结初始下降6.8、11.2分，是当时实现的实测结果。R9–R11随后形成原生保护：在原候选池与完整初始历史上独立验证，只有整数J字典序严格改善才接纳；低值/平局保持原件，非法候选返回失败。该新增入口保留主分，不单独保证覆盖不下降，也不自动改变legacy/fault路径。
+In round 8, baseline fault-free replanning for H1/B and H2/B lost 6.8 and 11.2 points, respectively, against the frozen initial plans. R9 through R11 introduced the native guard. It checks the original candidate pool and full initial history independently, accepting a candidate only when integer J improves strictly in lexicographic order. Lower values and ties retain the original. Illegal candidates return failure. The added entry point protects the primary score. Coverage may decrease, and legacy and fault paths use their own rules.
 
-原生source使用外部持有的manifest SHA，评价直接检查真实completed/locked/new_success，recheck不求解、不依赖旧绝对路径。资源准备之后才做32秒求解准入：块内30秒含1秒保存余量，块外2秒余量，父子共用同主机单调时钟截止；没有超时后成功恢复。接入契约见[原生说明](NO_FAULT_NATIVE.md)。
+The native source uses an externally held manifest SHA. Evaluation directly checks real completed, locked, and new_success states. Recheck runs without solving or relying on old absolute paths. After resources are prepared, solve admission checks for 32 seconds. The 30 seconds inside the solve block include a 1-second save allowance, with 2 seconds of margin outside the block. Parent and child use the same host monotonic deadline. A timed-out solve remains failed. See the [native workflow guide](NO_FAULT_NATIVE.md).
 
-R11的280项及R12/R13真实矩阵属于历史快照的实测。此前原生功能合入前另校正父进程子命令完成后的快照/收尾检查，避免已经越过父deadline仍返回整工作流PASS；不能将历史测试冒称该新增差异已验证。同源码历史回归和合成流程结果保留在原PR；当前文档PR的云端CI以其实际Actions为准，不把历史测试写成新执行。
+The 280 R11 tests and the actual R12/R13 matrices are measured results of their historical snapshots. Before native functionality was merged, the parent snapshot and finalization checks after child-command completion were corrected to prevent a workflow PASS after crossing the parent deadline. The original PR contains the same-source historical regressions and synthetic workflow results. The current documentation PR's Actions run provides its own verification results.
 
-## 第十二、十三轮聚合结果及范围
+## Aggregated Results and Scope for Rounds 12 and 13
 
-R12的新180目标与历史301目标无交集，60子集嵌套其中；两规模及A/B起点共享数据，不是独立重复。其selected方法差为H60/A 3.2、H60/B 0、H180/A 35.2、H180/B 0分；分支2接纳/2低值保留/4平局保留，预算253.184秒。
+R12 used 180 new targets disjoint from the historical set of 301, with a nested subset of 60. The two scales and A/B starting points shared data. Selected method gaps were 3.2 points for H60/A, 0 for H60/B, 35.2 for H180/A, and 0 for H180/B. The branches were 2 accepted, 2 retained for a lower value, and 4 retained on a tie. The budget use was 253.184 seconds.
 
-R13复用60目标及同一TLE，两个模型日为2026-08-05/06，t3600。起点龄期范围分别0.56084577～2.19982376和1.56084577～3.19982376天，均非负；不证明元素当时已经发布、可获取或轨道真值准确。selected方法差D1/A 5.2、D1/B 0、D2/A 7.2、D2/B 0分，分支仍2/2/4，预算262.701秒。日期与龄期共同改变，不能分离因果作用。
+R13 reused 60 targets and the same TLEs. The model days were 2026-08-05 and 2026-08-06 at t3600. Starting element ages were 0.56084577–2.19982376 days and 1.56084577–3.19982376 days, respectively. All were nonnegative. Historical publication, availability, and orbital ground-truth accuracy remain unverified. Selected method gaps were 5.2 points for D1/A, 0 for D1/B, 7.2 for D2/A, and 0 for D2/B. Branch counts were again 2/2/4. The budget use was 262.701 seconds. Date and element age changed together.
 
-每轮正常路径均8份原生评价及8份重查、求解0次。真实包新路径迁移已在R12执行，R13沿用冻结代码而未重复迁移。原跨日任务负例首先触发固定历史不匹配，证明整体错配拒绝；后续独立审计另用仅平移UTC的阳性/阴性对照确认时间绑定，不改写原负例拒因。
+Each round's normal path included 8 native evaluations, 8 rechecks, and 0 solves. R12 migrated the actual package to a new path. R13 reused the frozen code. The original cross-day task negative case first triggered a frozen-history mismatch, confirming rejection of the combined mismatch. A later independent audit verified time binding with positive and negative controls that shifted only UTC. The original rejection reason stands.
 
-R11前次失败8387.504秒单独保留，其后明确重执行368.955秒；R12负例适配器失败0.782秒、R13的bootstrap 0.578秒及smoke 3.625秒均计入各自账本。各轮600秒仅是当次受控账本，不代表所有历史尝试累计600秒内。
+The previous R11 failure took 8387.504 seconds and is recorded separately from the explicitly rerun 368.955 seconds. The R12 negative-case adapter failure took 0.782 seconds. R13 bootstrap and smoke took 0.578 and 3.625 seconds. Each is included in its own ledger. The 600-second limit applies to each round's controlled ledger separately.
 
-## 第十四至十九轮摘要
+## Summary of Rounds 14 Through 19
 
-R14仅改变未来可用站集合，两份initial仍来自三站并原字节共享。十站相对三站的selected整数分增加21至85、覆盖增加4个目标；是当前实例的资源敏感性，不是十站从零初始化或一般启发式单调性证明。其当前文件闭合复核通过，但原seal终端零退出未在包内保存，最后约339.684秒组间墙钟曾漏列；不回写旧证据。
+R14 changed only the future set of available stations. Both initial plans came from the three-station configuration and were shared byte for byte. Selected scores with ten stations increased by 21 to 85 integer points and covered four more targets. This measures resource sensitivity for the instance with shared starting plans. Ten-station initialization from scratch and general heuristic monotonicity are outside the test scope. The present file-closure review passed. The package lacks the original seal terminal record with exit code 0, and the last approximately 339.684 seconds of between-case wall time were previously omitted.
 
-R15检查器将产品枚举retained_original与CSV标识retained混比，四个原生t2成功仍不能计为完整验收节点。R16完成检查器回放，却在预备阶段超限；并发计账、freeze重复执行及封存脚本编辑交叠的限制保留。R17修订控制层后完成八节点，均平局保留，A/B策略路径整数分差维持16／54。阶段completed增长正确减直接父步骤，累计减t1；四链t3主分已达各自固定历史下松上界。
+The R15 verifier compared the product enum retained_original with the CSV identifier retained, so four successful native t2 runs did not count as fully accepted nodes. R16 replayed the verifier but exceeded the preparation limit. Its limitations include overlapping accounting, repeated freeze execution, and editing the seal script while work was in progress. After control-layer revision, R17 completed eight nodes, all retaining on ties. The A/B strategy path differences remained 16 and 54 integer points. Per-stage completed growth was measured against the immediate parent, and cumulative growth against t1. The t3 primary scores for all four chains reached their respective loose upper bounds with fixed history.
 
-R18同十站完整候选池从空历史生成两initial，J为(914,60)和(1000,60)；t3600完成任务为53和21。四个native三平局、一低值保留，后一案例将raw964保护为selected1000。BASE初始化较旧initial提高41整数分，但其后续路径仍低于旧参照44或60整数分，不能概括初始化后的结果普遍更优。六份几何报告合计82080个整秒采样；仅支持当前TLE模型一致性。
+R18 created two initial plans from empty histories using the same complete ten-station candidate pool. J was (914,60) and (1000,60). At t3600, completed task counts were 53 and 21. Of the four native runs, three retained on ties and one retained a higher original score, producing selected 1000 over raw 964. BASE initialization improved by 41 integer points over the old initial plan. Its subsequent path scored 44 or 60 integer points below its old reference. The direction depended on the stage. Six geometry reports covered 82080 whole-second samples, supporting agreement with the current TLE model.
 
-R18冻结finalizer未创建控制代码归档父目录，真实退出1，seal未启动。R19对当前未封存证据快照只读接收、复核、打包并完成真实seal及独立重建验收；没有新增schedule、backend或传播。R18独立费用208.426582秒，R19独立费用169.646280秒，各自限额600秒，不合并成一次实验预算。R19证明的是新恢复包，不能追溯改写R18封存失败；取证开发阶段未逐版归档的局限也保留。
+The R18 frozen finalizer failed to create the parent directory for its control-code archive and exited with code 1, leaving sealing unstarted. R19 took the current unsealed evidence snapshot into read-only custody, reviewed it, packaged it, and completed actual sealing and independent reconstruction acceptance. New schedule runs, backend calls, and propagations totaled zero. R18 and R19 used 208.426582 and 169.646280 seconds, respectively, against separate 600-second limits. R19 certifies its new recovery package. R18's seal failure remains, and some evidence-collection development revisions lack individual archives.
 
-## 第二十轮共同输入
+## Round 20 Shared Input
 
-R20的180目标每档60，H60严格嵌套；九个原始文件身份与旧研究一致。模型固定2026-08-05全天、十站、原几何与候选参数。历史H60缺少依赖／内置时间辅助数据的完整历史字节身份，故实际复用窗口0，全冷计算1800目标×站组合；没有拼用R12的Aug03窗口。H60子集2173窗口／39720候选，新增120子集4536／76503。全部候选确定性逐字节重演通过。
+R20 used 180 targets, 60 per tier, with H60 strictly nested. All nine raw file identities matched the earlier research. The model used all of 2026-08-05, ten stations, and the original geometry and candidate parameters. The historical H60 data lacked complete historical byte identities for dependencies and embedded time auxiliary data. All 1800 target-station pairs were generated from scratch, reusing zero windows. The R12 Aug03 windows were excluded. The H60 subset had 2173 windows and 39720 candidates. The other 120 targets had 4536 windows and 76503 candidates. All candidates passed deterministic byte-for-byte replay.
 
-窗口两端均为有效整秒且end_s含端；20127个直接几何样本通过，153个空窗口组合只有冻结网格及实际细查范围的负证据。3000整数分是逐目标候选最高分之和，不证明可联合实现或实际达到。费用530.423／600秒，含准备442.438、seal整60、独立验收7.985及尾部20；45秒预检有部分未定位UTC，不能解释为整段聊天墙钟。正式生产及seal各一次、原始退出0；同机新路径验收允许已绑定Python运行环境，该环境未打包，不代表异机验收。
+Both window endpoints are valid whole seconds and `end_s` is inclusive. All 20127 direct geometry samples passed. The 153 empty target-station pairs establish absence on the frozen grid and in the ranges actually refined. Summing each target's highest candidate score gives 3000 integer points. Joint feasibility and attainment of that total are unverified. The accounting total was 530.423 / 600 seconds. Preparation used 442.438, sealing 60, independent acceptance 7.985, and wrap-up 20. Parts of the 45-second preflight lacked a UTC position. The ledger measures scoped work. Formal production and sealing each ran once with raw exit code 0. Acceptance from a new path used an external bound Python environment on the same machine.
 
-## 第二十一至二十七轮状态
+## Status of Rounds 21 Through 27
 
-R21实际6组启动5组，仅两initial完整通过，J分别为(2758,180)与(3000,180)；三个原生工作流在后续阶段超时，第四预算阻塞，native0/4。这里不能将工作流超时统称求解器超时，也不能用未验收残留候选报告方法收益。backend保留completed receipts4、started confirmed5、unknown2、启动范围[5,7]，不将旧4份完成回执当作精确启动总数。
+In R21, five of six cases started and only the two initial cases passed completely. Their J values were (2758,180) and (3000,180). Three native workflows timed out at later stages, and the fourth was budget-blocked, leaving native acceptance at 0/4. The recorded timeouts apply to workflows, and leftover unaccepted candidates were excluded from method-gain reporting. The backend evidence retains four completion receipts, five confirmed starts, two unknowns, and a start range of [5,7].
 
-R22/R23均PARTIAL；R24/R25/R26-A/B均BLOCKED，原始失败、起点缺口和保护未完成分别保留。R27才在同机新候选路径完成真实post/原accept与18负例、两层审计，原字节核心与完整freeze核对通过。R27没有再次求解或传播，也没有正式seal/post。费用和证据解释边界见[R27执行器资格](R27_EXECUTOR_QUALIFICATION.md)。
+R22 and R23 both remain PARTIAL. R24, R25, R26-A, and R26-B remain BLOCKED. Their original failures, missing starting states, and incomplete protection are recorded separately. R27 first completed actual post and original accept from a new candidate path on the same machine, along with 18 negative cases and two audit layers. The original core bytes and full freeze matched. R27 performed zero additional solves, propagation, or formal seal/post operations. See [R27 executor qualification](R27_EXECUTOR_QUALIFICATION.md) for budget and evidence scope.
 
-## 第二十八至三十四轮：计时修复与BASE同起点配对
+## Rounds 28 Through 34 Timing Fixes and the BASE Same-Start Pair
 
-R28实际seal/post/accept各一次、退出0；但先读取执行文件后登记，不能确认整轮预算，状态仍PARTIAL。R29/R30再次因登记前读取阻塞；R31才完成首工具登记、两小命令和等待清理的30项资格，实测退出0/7，不运行生产业务。R32准备151.434秒超80秒硬限，native未启动；失败收尾及最小702.082秒记录也不构成预算闭合。R33-A缺启动代码／状态而阻塞；B登记及入口SHA通过，launcher和capture因写权限退出1，另有登记前读取偏差；缺少可核验业务计数，不能宣称业务确定为0。
+In R28, actual seal, post, and accept each ran once and returned code 0. Execution files were read before registration, leaving the overall round budget unverified and the status PARTIAL. R29 and R30 were again blocked by pre-registration reads. R31 completed the 30 qualification items for first-tool registration, two short commands, and waiting for cleanup. Actual exit codes were 0 and 7, with zero production operations. R32 preparation took 151.434 seconds, above an 80-second hard limit, and the native case never started. Wrap-up failed and the 702.082-second minimum record did not close the budget. R33-A was blocked by missing startup code or state. R33-B passed registration and entry-point SHA checks. The launcher and capture exited 1 due to write permissions, with a separate pre-registration read deviation. Verifiable production call counts are unavailable.
 
-R33-C与R34分别成功运行H180_BASE起点的baseline和improved，每轮native1、solver1、backend精确启动3／完成3，produce/evaluate/recheck退出均0。两轮共享8份source、100份产品、279份冻结依赖和声明运行环境身份，以及30秒solver／180秒workflow／230秒group预算；决策t3600、相同retained。J从(2758,180)到(2806,180)；49个调整中8个120→240秒升级贡献+48整数分，其余41个调整不改变分数，不能概括为减少扰动。它们只是一组同固定实例的方法比较。
+R33-C and R34 successfully ran baseline and improved, respectively, from H180_BASE. Each had one native run, one solve, exactly three backend starts and three completions, and zero exit codes for produce, evaluate, and recheck. The two rounds shared 8 source files, 100 product files, 279 frozen dependencies, and declared runtime identities. They used budgets of 30 seconds for the solver, 180 for the workflow, and 230 for the group, with decision time t3600 and the same retained plan. J increased from (2758,180) to (2806,180). Of 49 adjustments, eight extending tasks from 120 to 240 seconds contributed all 48 extra integer points. The other 41 contributed zero points. The case compares the methods on a single fixed instance. It does not establish a reduction in adjustments.
 
-每轮传播调用360；baseline计划采样39060、双路传播样本78120，improved分别40020和80040。+960计划样本与8次增加120秒相符。保护记录均通过22624文件、3树、3950消费原件；本次独立审计复核保存记录及实验副本，没有重扫全部历史原件或重跑求解／传播。
+Each round made 360 propagation calls. Baseline had 39060 plan samples and 78120 two-path propagation samples. Improved had 40020 and 80040, respectively. The 960 extra plan samples equal eight extensions of 120 seconds. Protection records passed for 22624 files, 3 trees, and 3950 consumed originals in each round. The independent audit reviewed saved records and experiment copies. It did not rescan all historical originals or rerun solves or propagation.
 
-R33-C保存末次采样173.1593674秒；R34为235.8957645秒。外部终端交接另报告返回覆盖177.011和238.9717645秒，R34终端采样235.9102733秒；这些外部值不是已保存parent JSON字段，也不由单个保存采样自动推出末次工具覆盖。两轮保存采样及所报告外部覆盖均低于各自600秒限额，分别计算，不能据此比较方法耗时优劣或视为整段聊天预算。
+The last saved sample was 173.1593674 seconds for R33-C and 235.8957645 for R34. External terminal handoff separately reported return coverage of 177.011 and 238.9717645 seconds, respectively, and a terminal sample of 235.9102733 seconds for R34. Those external values are absent from saved parent JSON fields. The last saved sample alone cannot establish final tool coverage. Each round's saved sample and reported external coverage stayed below its separate 600-second limit. These figures measure the individual recorded intervals, with method speed and end-to-end chat time outside that scope.
 
-## 下一步与未验证项
+## Next Steps and Unverified Items
 
-H180跨轮native当前2/4，IMP起点两组尚待独立验收；R21原native0/4及启动unknown2不变。R33-C/R34没有再次seal/post/accept，完整证据交付、接收及历史Demo／Word/PDF更新尚未闭合。本次公共提交仅更新聚合文档，不发布研究执行器或新增产品API。
+Cross-round H180 native acceptance stood at 2/4, with the two IMP-starting cases awaiting independent acceptance. The original R21 native status remains 0/4, with two unknown starts. R33-C and R34 had zero repeat seal/post/accept runs. Full evidence delivery and receipt and updates to the historical Demo and Word/PDF materials were still open. The original public update covered aggregate documentation. The research executor and new product APIs were outside its scope.
 
-当前已完成的算法验证包含同源60目标、真实十站、24小时及有限连续状态链，以及H180_BASE的两方法单实例；完整H180矩阵、六天和10000目标仍未整体完成。新增任务到达、资源撤回／故障、独立来源及更大规模需另行冻结问题与预算；不能把静态链稳定性当成动态适应验证。完整光学设备、窗口搜索完备性、连续时间可行性、历史发布可得性、异机／现场接收和官方最终评分仍未验证，旧额外复评继续[BLOCKED](optional_evaluator.md)。现有Demo和Word/PDF仍属历史批次。
+Algorithm verification to that point covered 60 targets from a single source, ten real stations, 24 hours and a bounded continuous state chain, and a single H180_BASE instance with two methods. The full H180 matrix, six days, and 10000 targets were not yet complete in this historical snapshot. New task arrivals, withdrawal or failure of resources, independent sources, and larger scales require separately frozen problems and budgets. Static-chain stability covers a different condition from dynamic adaptation. Full optical equipment, window search completeness, continuous-time feasibility, historical publication availability, different-machine or on-site receipt, and final official scoring remain unverified. The legacy extra evaluator remains [BLOCKED](optional_evaluator.md). Existing Demo and Word/PDF materials belong to their historical batches.
 
-仓库发布源码、合成输入与聚合事实，不发布真实目标标识、任务表、TLE、完整manifest／恢复包、机器日志或本机prompt；它不是这些真实数据实验的自包含复现包。恢复说明见[R19恢复记录](R19_RECOVERY_STATUS.md)，输入交付见[R20输入交付](R20_INPUT_DELIVERY.md)，历史资格见[R27执行器资格](R27_EXECUTOR_QUALIFICATION.md)，最新方法配对见[R33-C/R34](R33_R34_H180_BASE_PAIR.md)。
+The repository publishes source, synthetic inputs, and aggregate facts. Real target identifiers, task tables, TLEs, full manifests and recovery packages, machine logs, and local prompts are kept locally. Reproducing the real-data experiments requires those local materials. See the [R19 recovery record](R19_RECOVERY_STATUS.md), [R20 input delivery](R20_INPUT_DELIVERY.md), [R27 executor qualification](R27_EXECUTOR_QUALIFICATION.md), and latest method pair [R33-C/R34](R33_R34_H180_BASE_PAIR.md).

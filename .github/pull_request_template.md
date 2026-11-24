@@ -1,16 +1,16 @@
-## 改动
+## Changes
 
-<!-- 说明要解决的问题、改动后的行为和关联的 Issue（如有）。 -->
+<!-- Describe the problem, the updated behavior, and any related issue. -->
 
-## 验证
+## Verification
 
-<!-- 记录实际运行的命令或检查、结果及测试数量（如适用）。未验证的部分请说明原因。 -->
+<!-- Record the commands or checks you actually ran, their results, and the test count if applicable. Explain any gaps in verification. -->
 
-## 影响
+## Impact
 
-<!-- 说明是否影响输入输出、约束、评分或交付流程。仅改文档或格式时，可写“无运行行为变更”。 -->
+<!-- Describe any impact on inputs, outputs, constraints, scoring, or delivery. For documentation or formatting changes, state whether runtime behavior changes. -->
 
-## 提交前检查
+## Before Submitting
 
-- [ ] 已检查变更文件和差异，确认未包含真实数据、运行产物、本机环境清单或凭据。
-- [ ] 已检查相关说明和示例是否需要同步更新。
+- [ ] Reviewed the changed files and diff for real data, run artifacts, local environment inventories, and credentials.
+- [ ] Checked whether related documentation and examples need updates.

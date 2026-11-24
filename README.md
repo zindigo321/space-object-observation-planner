@@ -2,44 +2,44 @@
 
 The planner builds and revises observation schedules from ground stations, space objects, and visibility windows. Synthetic inputs let you run scheduling, independent evaluation, and read-only checks locally.
 
-## 快速上手
+## Quick Start
 
-使用 Windows x64、64 位 CPython 3.11、Git 和 PowerShell。先用 `python --version` 确认当前解释器版本。
+Use Windows x64, 64-bit CPython 3.11, Git, and PowerShell. Run `python --version` to confirm the active interpreter.
 
 ```powershell
 git clone https://github.com/zindigo321/space-object-observation-planner.git
-if ($LASTEXITCODE -ne 0) { throw '仓库克隆失败' }
+if ($LASTEXITCODE -ne 0) { throw 'Repository clone failed' }
 Set-Location space-object-observation-planner -ErrorAction Stop
 python -m venv .venv
-if ($LASTEXITCODE -ne 0) { throw '虚拟环境创建失败' }
+if ($LASTEXITCODE -ne 0) { throw 'Virtual environment creation failed' }
 
 $py = (Resolve-Path '.venv/Scripts/python.exe').Path
 & $py -m pip install -r requirements-dev.txt
-if ($LASTEXITCODE -ne 0) { throw '开发依赖安装失败' }
+if ($LASTEXITCODE -ne 0) { throw 'Development dependency installation failed' }
 
 $out = 'outputs/synthetic_' + (Get-Date -Format 'yyyyMMdd_HHmmss_fff')
 & $py -X utf8 scripts/team3_run.py synthetic --out $out
-if ($LASTEXITCODE -ne 0) { throw '合成流程失败，请查看控制台和输出目录' }
+if ($LASTEXITCODE -ne 0) { throw 'Synthetic workflow failed. Check the console and output directory.' }
 ```
 
-成功后查看 `$out/workflow.json`，其中 `status` 为 `PASS`，`exit_code` 为 `0`。规划、评价和复查结果保存在同一输出目录。每次运行使用新目录。完整测试命令见[协作指南](CONTRIBUTING.md#本地验证)。
+On success, `$out/workflow.json` reports `status: PASS` and `exit_code: 0`. The same output directory contains the schedule, evaluation, and recheck results. Use a fresh directory for each run. See the [contributing guide](CONTRIBUTING.md#local-verification) for the full test commands.
 
-## 正式交付与验收
+## Release Package and Acceptance
 
-S02 和 H180 的冻结用例随项目组交付的 `FAMOU_TEST_PACKAGE.zip` 提供。拿到对应版本后，从解压目录按[正式产品运行手册](famou/RUNBOOK.md)离线安装，并执行规划、评价和复查。
+The project team distributes the frozen S02 and H180 cases in `FAMOU_TEST_PACKAGE.zip`. From the extracted directory for the corresponding release, follow the [release runbook](famou/RUNBOOK.md) to install dependencies offline and run planning, evaluation, and rechecks.
 
-S02 已在 Windows x64 上完成本地正式验收，验收版本绑定提交 `6aacb4a64d5b32d388c7ecbcad7ae361bb31b29d`。百度伐谋端待验收。交付包的源码身份见包内 `SOURCE_IDENTITY.json`，成绩、计时和 ZIP 哈希见随包的 `FINAL_ACCEPTANCE.json`。
+S02 completed formal local acceptance on Windows x64 at commit `6aacb4a64d5b32d388c7ecbcad7ae361bb31b29d`. Acceptance on Baidu FAMOU is pending. The package contains `SOURCE_IDENTITY.json`, and the accompanying `FINAL_ACCEPTANCE.json` records scores, timing, and the ZIP hash.
 
-## 仓库结构
+## Repository Layout
 
-| 路径 | 内容 |
+| Path | Contents |
 | --- | --- |
-| `planner/` | 调度、重规划、输入校验及独立评价 |
-| `scripts/` | 运行、试读、打包及验收入口 |
-| `configs/`、`examples/synthetic/` | 配置及公开合成示例 |
-| `tests/` | 自动回归测试 |
-| `famou/` | 正式运行手册、平台说明、锁定依赖及原生组件 |
-| `demo/` | [离线演示](demo/README.md)模板和合成示例用法 |
-| `docs/`、`research/` | 源码仓库的接口文档、验收记录和研究工具 |
+| `planner/` | Scheduling, replanning, input validation, and independent evaluation |
+| `scripts/` | Workflow, input inspection, packaging, and acceptance entry points |
+| `configs/`, `examples/synthetic/` | Configuration and public synthetic examples |
+| `tests/` | Automated regression tests |
+| `famou/` | Release runbook, platform guide, locked dependencies, and native components |
+| `demo/` | [Offline demo](demo/README.md) template and synthetic example instructions |
+| `docs/`, `research/` | Interface documentation, acceptance records, and research tools |
 
-通过[源码文档索引](https://github.com/zindigo321/space-object-observation-planner/tree/main/docs#readme)查找当前状态、数据接入契约与历史实验记录。提交修改前请阅读[协作指南](CONTRIBUTING.md)。
+Find the current status, integration contracts, and experiment history in the [documentation index](https://github.com/zindigo321/space-object-observation-planner/tree/main/docs#readme). Read the [contributing guide](CONTRIBUTING.md) before submitting changes.
