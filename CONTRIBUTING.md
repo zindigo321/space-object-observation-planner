@@ -47,7 +47,7 @@ git push -u origin HEAD
 
 ## Issue、Pull Request 与 CI
 
-在 [GitHub Issues](https://github.com/zindigo321/wznb/issues)报告问题或提交改进建议。复现问题时优先使用合成示例，日志摘录应去除真实数据和凭据。
+在 [GitHub Issues](https://github.com/zindigo321/space-object-observation-planner/issues)报告问题或提交改进建议。复现问题时优先使用合成示例，日志摘录应去除真实数据和凭据。
 
 按 [PR 模板](.github/pull_request_template.md)说明改动、实际验证和接口或数据影响。合入 `main` 前确认 `Windows Python 3.11` 检查通过。
 

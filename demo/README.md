@@ -2,7 +2,7 @@
 
 `template.html` 是生成器模板，页面数据由任务 CSV、独立校验报告及指标生成。将真实生成物留在 Git 忽略的 `outputs/`，包括 HTML、截图、目标和窗口 JSON。
 
-历史 E3/E4 结果的演示与截图命令见[源码仓库交接说明](https://github.com/zindigo321/wznb/blob/main/docs/IMPROVEMENT_DEMO_HANDOFF.md)。生成的 HTML 可直接在浏览器中离线打开。
+历史 E3/E4 结果的演示与截图命令见[源码仓库交接说明](https://github.com/zindigo321/space-object-observation-planner/blob/main/docs/IMPROVEMENT_DEMO_HANDOFF.md)。生成的 HTML 可直接在浏览器中离线打开。
 
 ## 生成合成演示
 
