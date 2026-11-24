@@ -1,15 +1,15 @@
-# bd-fmb 空间目标观测任务规划
+# Space Object Observation Planner
 
-bd-fmb 根据观测站、空间目标和可观测窗口生成任务计划，支持初始规划、重规划、独立评价和只读复查。源码仓库提供合成数据，可在本地验证从调度到评价的流程。
+The planner builds and revises observation schedules from ground stations, space objects, and visibility windows. Synthetic inputs let you run scheduling, independent evaluation, and read-only checks locally.
 
 ## 快速上手
 
 使用 Windows x64、64 位 CPython 3.11、Git 和 PowerShell。先用 `python --version` 确认当前解释器版本。
 
 ```powershell
-git clone https://github.com/zindigo321/wznb.git
+git clone https://github.com/zindigo321/space-object-observation-planner.git
 if ($LASTEXITCODE -ne 0) { throw '仓库克隆失败' }
-Set-Location wznb -ErrorAction Stop
+Set-Location space-object-observation-planner -ErrorAction Stop
 python -m venv .venv
 if ($LASTEXITCODE -ne 0) { throw '虚拟环境创建失败' }
 
@@ -42,4 +42,4 @@ S02 已在 Windows x64 上完成本地正式验收，验收版本绑定提交 `6
 | `demo/` | [离线演示](demo/README.md)模板和合成示例用法 |
 | `docs/`、`research/` | 源码仓库的接口文档、验收记录和研究工具 |
 
-通过[源码文档索引](https://github.com/zindigo321/wznb/tree/main/docs#readme)查找当前状态、数据接入契约与历史实验记录。提交修改前请阅读[协作指南](CONTRIBUTING.md)。
+通过[源码文档索引](https://github.com/zindigo321/space-object-observation-planner/tree/main/docs#readme)查找当前状态、数据接入契约与历史实验记录。提交修改前请阅读[协作指南](CONTRIBUTING.md)。
