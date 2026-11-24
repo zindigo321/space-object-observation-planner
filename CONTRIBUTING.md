@@ -1,8 +1,8 @@
-# 协作与提交
+# 协作指南
 
 ## 开始修改
 
-从最新主分支创建工作分支；保持本地未提交修改已妥善处理。
+整理好本地改动后，从最新的 `main` 创建工作分支。
 
 ```powershell
 git switch main
@@ -10,14 +10,14 @@ git pull --ff-only origin main
 git switch -c work/你的任务名称
 ```
 
-主分支用于稳定交付，通过 Pull Request 合并。提交说明写清实际变化，例如“修复故障前完成任务保留”，无需统一改写已有历史。
+通过 Pull Request 合入 `main`。提交说明写清实际变化，例如“修复故障前完成任务保留”。
 
 ## 本地验证
 
-使用 Python 3.11，安装依赖后在项目根目录执行。已有项目环境可直接使用。
+按[快速上手](README.md#快速上手)准备 Windows x64、64 位 CPython 3.11 和开发依赖。在仓库根目录执行以下命令。使用已有环境时，将 `$py` 设为对应的解释器。
 
 ```powershell
-$py = 'python'
+$py = (Resolve-Path '.venv/Scripts/python.exe').Path
 $run = 'outputs/local_check_' + (Get-Date -Format 'yyyyMMdd_HHmmss_fff')
 New-Item -ItemType Directory -Path $run -ErrorAction Stop | Out-Null
 
@@ -28,7 +28,7 @@ if ($LASTEXITCODE -ne 0) { throw '测试未通过' }
 if ($LASTEXITCODE -ne 0) { throw '合成接入未通过' }
 ```
 
-每次使用新输出目录。Windows 特有的联接、大小写别名等测试应在 Windows 上执行；报告跳过时注明原因，不把跳过写成验证通过。
+每次使用新输出目录。目录联接和大小写别名等用例在 Windows 上执行。报告中注明实际运行的测试和跳过原因。
 
 ## 检查提交内容
 
@@ -43,18 +43,20 @@ git commit -m '说明本次实际改动'
 git push -u origin HEAD
 ```
 
-真实原始数据、真实目标/窗口/任务表、运行输出、缓存、截图、压缩包、密码和 Token、机器专属环境快照及本地提示词不上传。合成示例必须明确标注为合成数据。忽略规则不能替代暂存内容检查。
+检查暂存区，移除真实原始数据、真实目标/窗口/任务表、运行输出、缓存、截图、压缩包、密码、Token、机器专属环境快照及本地提示词。新增示例应明确标注为合成数据。
 
-## Pull Request 与自动测试
+## Issue、Pull Request 与 CI
 
-创建 PR 时使用仓库模板，填写问题、改动、实测结果、接口/评分影响和未验证项。PR 合入 main 前等待 `Windows Python 3.11` 检查通过。模板合入主分支后才会自动用于后续 PR；引入模板的第一份 PR 需手动填写。
+在 [GitHub Issues](https://github.com/zindigo321/wznb/issues)报告问题或提交改进建议。复现问题时优先使用合成示例，日志摘录应去除真实数据和凭据。
 
-自动测试工作流会在指向 main 的 PR、main 的推送、初次配置分支的推送及手动触发时运行，使用 Windows 2025 和 Python 3.11 安装依赖、检查依赖一致性、运行完整测试与合成接入。它不使用真实比赛数据，不替代真实 TLE 实验、1号数据验收、3号本人接入或正式评分。
+按 [PR 模板](.github/pull_request_template.md)说明改动、实际验证和接口或数据影响。合入 `main` 前确认 `Windows Python 3.11` 检查通过。
 
-首次云端运行成功后，仓库管理员在主分支保护中要求 PR 和此状态检查；尚无第二位可审阅成员时，先不要求批准数量，避免阻塞交付。禁止强制推送与删除 main。设置是否生效以 GitHub 在线规则为准，新增文档不会自动启用保护。
+[CI 工作流](.github/workflows/ci.yml)在指向 `main` 的 PR、`main` 的推送和手动触发时运行。它检查依赖、执行回归和合成接入，并校验合成回执。PR 和推送还会检查 Markdown、YAML、JSON、EditorConfig 和 Git 配置中改动行的空白格式。正式数据的运行步骤见[正式产品运行手册](famou/RUNBOOK.md)。
 
 ## 格式与现有证据
 
-源代码和文档按 `.gitattributes`、`.editorconfig` 使用 UTF-8 和规定换行。不要批量格式化旧代码、执行全仓库换行重写，或改写封存实验。CSV 保持原有 Git 自动文本处理方式，不新增强制换行规则；忽略目录中的任务表与封存证据不参与本次变更。
+- 新增或编辑的源码和文档遵循 [EditorConfig](.editorconfig) 和 [Git 属性](.gitattributes)。文档使用 UTF-8、LF 及文件末尾换行。命令示例标注语言，例如 `powershell`，文件路径用行内代码。
+- Python 使用 4 空格缩进。YAML、JSON、HTML 和 JavaScript 使用 2 空格缩进。格式调整限于本次编辑的内容。
+- 保留封存实验、固定输入和发布清单的原始字节。CSV 沿用现有 Git 文本处理规则。
 
-项目尚未确定开源许可证，需团队明确后再添加 LICENSE。
+项目尚未确定开源许可证，由项目组决定适用条款。

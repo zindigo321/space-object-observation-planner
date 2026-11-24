@@ -4,7 +4,7 @@ name: CI
   pull_request:
     branches: [main]
   push:
-    branches: [main, chore/repository-standards]
+    branches: [main]
   workflow_dispatch: {}
 
 permissions:
@@ -32,7 +32,23 @@ jobs:
       - name: Check out source
         uses: actions/checkout@v7
         with:
+          fetch-depth: 0
           persist-credentials: false
+
+      - name: Check documentation and configuration whitespace
+        if: github.event_name == 'pull_request' || github.event_name == 'push'
+        env:
+          DIFF_BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          $base = $env:DIFF_BASE
+          if ([string]::IsNullOrEmpty($base)) {
+            throw 'Missing Git diff base for this event'
+          }
+          if ($base -eq ('0' * 40)) {
+            # A new branch has no previous commit. Compare with Git's empty tree.
+            $base = '4b825dc642cb6eb9a060e54bf8d69288fbee4904'
+          }
+          git diff --check $base HEAD -- .editorconfig .gitattributes .gitignore '*.md' '*.yml' '*.yaml' '*.json'
 
       - name: Set up Python
         uses: actions/setup-python@v7
