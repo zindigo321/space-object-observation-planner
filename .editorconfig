@@ -9,9 +9,12 @@ insert_final_newline = true
 indent_style = space
 indent_size = 4
 
-[*.{yml,yaml,json}]
+[*.{yml,yaml,json,html,mjs}]
 indent_style = space
 indent_size = 2
+
+[*.{md,yml,yaml,json}]
+trim_trailing_whitespace = true
 
 [*.ps1]
 end_of_line = crlf

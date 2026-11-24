@@ -1,20 +1,32 @@
 # 离线实验回放
 
-`template.html` 是生成器模板，数据来自本轮任务 CSV、独立校验报告及指标；直接打开模板没有实验数据。真实生成物保存在忽略的 `outputs/`，不要提交 HTML、截图、目标或窗口 JSON。
+`template.html` 是生成器模板，页面数据由任务 CSV、独立校验报告及指标生成。将真实生成物留在 Git 忽略的 `outputs/`，包括 HTML、截图、目标和窗口 JSON。
 
-已有真实实验结果的生成、打开及截图命令见 [交接说明](../docs/IMPROVEMENT_DEMO_HANDOFF.md)。HTML 自包含，无 CDN、HTTP 服务或浏览器现场求解；打开时不运行 Python。
+历史 E3/E4 结果的演示与截图命令见[源码仓库交接说明](https://github.com/zindigo321/wznb/blob/main/docs/IMPROVEMENT_DEMO_HANDOFF.md)。生成的 HTML 可直接在浏览器中离线打开。
 
-新克隆没有真实数据时，可使用仓库已有合成输入。这是 06:00 UTC 开始、1 小时、站点 7/9 的小契约示例，不是真实几何结果：
+## 生成合成演示
+
+按[快速上手](../README.md#快速上手)安装依赖后，从仓库根目录执行。示例使用 06:00 UTC 开始的 1 小时合成窗口，包含站点 7 和 9。
 
 ```powershell
-Set-Location G:\bd-fmb
-$py = 'D:\conda_envs\bd-fmb\python.exe'
-& $py -X utf8 smoke_test.py --config configs/synthetic.yaml --out outputs/demo_synthetic_run
-& $py -X utf8 scripts/build_demo.py --summary configs/demo_synthetic.json --out outputs/demo_synthetic_html
-Start-Process (Resolve-Path outputs/demo_synthetic_html/index.html).Path
+$py = (Resolve-Path '.venv/Scripts/python.exe').Path
+$out = 'outputs/demo_' + (Get-Date -Format 'yyyyMMdd_HHmmss_fff')
+& $py -X utf8 smoke_test.py --config configs/synthetic.yaml --out "$out/run"
+if ($LASTEXITCODE -ne 0) { throw '合成规划失败' }
+
+$summary = Get-Content 'configs/demo_synthetic.json' -Raw | ConvertFrom-Json
+$summary.cases[0].directory = "$out/run"
+$summaryPath = Join-Path (Get-Location) "$out/summary.json"
+[System.IO.File]::WriteAllText($summaryPath, ($summary | ConvertTo-Json -Depth 5))
+
+& $py -X utf8 scripts/build_demo.py --summary $summaryPath --out "$out/html"
+if ($LASTEXITCODE -ne 0) { throw '演示生成失败' }
+Start-Process (Resolve-Path "$out/html/index.html").Path
 ```
 
-目录须全新；重新演示请为运行目录和 HTML 目录换名，并同步 `configs/demo_synthetic.json` 的 `directory`。该 JSON 只含合成运行路径，不含真实数据。
+每次运行生成新的输出目录，并在其中保存指向本次运行的摘要。
+
+## 排查生成失败
 
 错误证据会生成可解释的 FAIL/BLOCKED 页面，并隐藏正常指标区域。生成器返回码：成功 0、无完整证据 3、证据内容不一致 2；已存在目录和源目录嵌套直接拒绝，不覆盖源证据。
 

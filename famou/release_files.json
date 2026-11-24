@@ -34,6 +34,7 @@
     "examples/synthetic/windows.csv",
     "famou/FAMOU_START_PROMPT.txt",
     "famou/PLATFORM_GUIDE.md",
+    "famou/RUNBOOK.md",
     "famou/initial_candidate.py",
     "famou/native/ABI.json",
     "famou/native/BUILD.md",
